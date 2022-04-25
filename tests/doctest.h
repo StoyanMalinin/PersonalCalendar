@@ -3020,6 +3020,8 @@ DOCTEST_MAKE_STD_HEADERS_CLEAN_FROM_WARNINGS_ON_WALL_BEGIN
 
 #include <sys/time.h>
 #include <unistd.h>
+#include "..\String.h"
+#include "..\src\String.h"
 
 #endif // DOCTEST_PLATFORM_WINDOWS
 
