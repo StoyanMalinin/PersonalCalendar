@@ -1,0 +1,7 @@
+.vs/**
+bin/**
+obj/**
+PersonalCalendar.sln
+PersonalCalendar.vcxproj
+PersonalCalendar.vcxproj.user
+PersonalCalendar.vcxproj.filters
