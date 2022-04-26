@@ -37,6 +37,26 @@ void Meeting::loadFromBinaryFile(std::fstream & f)
 	delete[] s;
 }
 
+const Time& Meeting::getStartTime() const
+{
+	return startTime;
+}
+
+unsigned char Meeting::getDuration() const
+{
+	return duration;
+}
+
+const String& Meeting::getTitle() const
+{
+	return title;
+}
+
+const String& Meeting::getDescription() const
+{
+	return description;
+}
+
 bool Meeting::intersects(const Meeting & other) const
 {
 	const Meeting* first, * second;
@@ -67,6 +87,14 @@ void Meeting::fixWhenImproperlyAllocated()
 {
 	title.fixWhenImproperlyAllocated();
 	description.fixWhenImproperlyAllocated();
+}
+
+void Meeting::swap(Meeting& other)
+{
+	std::swap(startTime, other.startTime);
+	std::swap(duration, other.duration);
+	description.swap(other.description);
+	title.swap(other.title);
 }
 
 void Meeting::skipInBinaryFile(std::fstream& f)

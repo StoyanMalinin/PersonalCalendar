@@ -22,10 +22,17 @@ public:
 	void loadFromBinaryFile(std::fstream& f);
 
 public:
+	const Time& getStartTime() const;
+	unsigned char getDuration() const;
+	const String& getTitle() const;
+	const String& getDescription() const;
+
+public:
 	bool intersects(const Meeting& other) const;
 	friend bool operator <(const Meeting& lhs, const Meeting& rhs);
 	friend bool operator <=(const Meeting& lhs, const Meeting& rhs);
 
+	void swap(Meeting& other);
 public:
 	friend std::ostream& operator <<(std::ostream& os, const Meeting& m);
 	static void skipInBinaryFile(std::fstream& f);

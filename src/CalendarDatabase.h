@@ -20,10 +20,10 @@ private:
 	size_t postponedStartPtr;
 
 	size_t toRemCnt;
-	Time *toRem[MAX_POSPONED];
+	Time *toRem[MAX_POSPONED+1];
 
 	size_t toAddCnt;
-	Meeting *toAdd[MAX_POSPONED];
+	Meeting *toAdd[MAX_POSPONED+1];
 
 public:
 	CalendarDatabase(const char* fileName);
@@ -35,6 +35,15 @@ public:
 	void closeFile();
 	void load();
 
+public:
+	void remMeeting(const Meeting& m);
+	void addMeeting(const Meeting& m);
+	void addMeeting(Meeting&& m);
+private:
+	void updatePostponedChanges();
+
+public:
+	static size_t getBinaryFileLen(std::fstream& f);
 };
 
 #endif // !__CALENDARDATABASE_H

@@ -270,3 +270,10 @@ bool operator ==(const String& lhs, const String& rhs)
 {
 	return (strcmp(lhs.data, rhs.data) == 0);
 }
+
+void String::swap(String& other)
+{
+	std::swap(len, other.len);
+	std::swap(cap, other.cap);
+	std::swap(data, other.data);
+}

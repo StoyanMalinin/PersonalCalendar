@@ -6,7 +6,7 @@
 
 void prepare()
 {
-	std::fstream f("calendar.dat", std::ios::out | std::ios::binary);
+	std::fstream f("calendar.dat", std::ios::out | std::ios::binary | std::ios::trunc);
 
 	size_t len = 2;
 	Meeting m1(Time(14, 19, 11, 2002), 2, String("rd"), String("rozhdenik sam malko az"));
@@ -40,7 +40,9 @@ int main()
 	//doctest::Context().run();
 
 	//prepare();
-
+	
 	CalendarDatabase db("calendar.dat");
 	db.load();
+
+	//db.remMeeting(Meeting(Time(17, 1, 4, 2015), 2, String("gei"), String("pedal")));
 }

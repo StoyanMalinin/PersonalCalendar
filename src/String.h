@@ -59,7 +59,9 @@ public:
 	friend bool operator <=(const String& lhs, const String& rhs);
 	friend bool operator >=(const String& lhs, const String& rhs);
 	friend bool operator ==(const String& lhs, const String& rhs);
-
+	
+	void swap(String& other);
+	
 public:
 	void fixWhenImproperlyAllocated();
 };
