@@ -100,6 +100,11 @@ bool String::findSubstr(String& s) const
 	return res;
 }
 
+bool String::findSubstr(const char* s) const
+{
+	return findSubstr(s, strlen(s));
+}
+
 bool String::findSubstr(const char* s, size_t n) const
 {
 	size_t* f = getPrefixFunction(s, n);
@@ -130,6 +135,11 @@ bool String::findSubstr(const String& s, const size_t* f) const
 	return findSubstr(s.data, s.len, f);
 }
 
+void String::fixWhenImproperlyAllocated()
+{
+	cutLinkToDynamic();
+}
+
 void String::resize(size_t newCap)
 {
 	if (cap == newCap) return;
@@ -153,7 +163,7 @@ void String::deepCopyFromOther(const String& other)
 	strcpy(data, other.data);
 }
 
-void String::shalllowCopyFromOther(const String& other)
+void String::shallowCopyFromOther(const String& other)
 {
 	data = other.data;
 	len = other.len;
@@ -177,7 +187,7 @@ String& String::operator =(String&& other)
 		return *this;
 
 	deleteDynamic();
-	shalllowCopyFromOther(other);
+	shallowCopyFromOther(other);
 	other.cutLinkToDynamic();
 
 	return *this;
@@ -190,7 +200,7 @@ String::String(const String& other)
 
 String::String(String&& other)
 {
-	shalllowCopyFromOther(other);
+	shallowCopyFromOther(other);
 	other.cutLinkToDynamic();
 }
 
@@ -234,4 +244,29 @@ String operator +(const String& lhs, const String& rhs)
 	res += rhs;
 
 	return res;
+}
+
+bool operator <(const String& lhs, const String& rhs)
+{
+	return (strcmp(lhs.data, rhs.data) < 0);
+}
+
+bool operator >(const String& lhs, const String& rhs)
+{
+	return (strcmp(lhs.data, rhs.data) > 0);
+}
+
+bool operator <=(const String& lhs, const String& rhs)
+{
+	return (strcmp(lhs.data, rhs.data) <= 0);
+}
+
+bool operator >=(const String& lhs, const String& rhs)
+{
+	return (strcmp(lhs.data, rhs.data) >= 0);
+}
+
+bool operator ==(const String& lhs, const String& rhs)
+{
+	return (strcmp(lhs.data, rhs.data) == 0);
 }

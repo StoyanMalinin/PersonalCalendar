@@ -98,7 +98,7 @@ Time& Time::operator+=(size_t h)
     while (h != 0)
     {
         nextHour();
-        h++;
+        h--;
     }
 
     return *this;
@@ -120,6 +120,16 @@ bool operator<(const Time& lhs, const Time& rhs)
     if (lhs.hour != rhs.hour) return lhs.hour < rhs.hour;
 
     return false;
+}
+
+bool operator<=(const Time& lhs, const Time& rhs)
+{
+    if (lhs.year != rhs.year) return lhs.year < rhs.year;
+    if (lhs.month != rhs.month) return lhs.month < rhs.month;
+    if (lhs.day != rhs.day) return lhs.month < rhs.month;
+    if (lhs.hour != rhs.hour) return lhs.hour < rhs.hour;
+
+    return true;
 }
 
 std::ostream& operator<<(std::ostream& os, const Time& t)

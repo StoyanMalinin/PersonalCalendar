@@ -16,7 +16,7 @@ private:
 	void deleteDynamic();
 	void cutLinkToDynamic();
 	void deepCopyFromOther(const String& other);
-	void shalllowCopyFromOther(const String& other);
+	void shallowCopyFromOther(const String& other);
 
 public:
 	String();
@@ -42,6 +42,7 @@ private:
 
 public:
 	bool findSubstr(String& s) const;
+	bool findSubstr(const char* s) const;
 	bool findSubstr(const char* s, size_t n) const;
 	bool findSubstr(const char* s, size_t n, const size_t* f) const;
 	bool findSubstr(const String& s, const size_t* f) const;
@@ -52,6 +53,15 @@ public:
 	
 	friend std::istream& operator >>(std::istream& is, String& s);
 	friend std::ostream& operator <<(std::ostream& os, const String& s);
+
+	friend bool operator <(const String& lhs, const String& rhs);
+	friend bool operator >(const String& lhs, const String& rhs);
+	friend bool operator <=(const String& lhs, const String& rhs);
+	friend bool operator >=(const String& lhs, const String& rhs);
+	friend bool operator ==(const String& lhs, const String& rhs);
+
+public:
+	void fixWhenImproperlyAllocated();
 };
 
 #endif // !__STRING_H
