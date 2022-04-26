@@ -27,7 +27,6 @@ CalendarDatabase::CalendarDatabase(const char* fileName) : f(fileName, std::ios:
 
 CalendarDatabase::~CalendarDatabase()
 {
-
 	try
 	{
 		saveChanges();
@@ -42,6 +41,8 @@ CalendarDatabase::~CalendarDatabase()
 
 	delete[] fileName;
 	delete[] tmpBuffFileName;
+
+	delete[] meetingPtrs;
 	for (size_t i = 0; i < toRemCnt; i++)
 		delete toRem[i];
 	for (size_t i = 0; i < toAddCnt; i++)
@@ -137,11 +138,12 @@ void CalendarDatabase::remMeeting(const Meeting& m)
 	{
 		updatePostponedChanges();
 
+		delete[] meetingPtrs;
 		for (size_t i = 0; i < toRemCnt; i++)
 			delete toRem[i];
 		for (size_t i = 0; i < toAddCnt; i++)
 			delete toAdd[i];
-		toRemCnt = toAddCnt = 0;
+		load();
 	}
 }
 
@@ -160,11 +162,12 @@ void CalendarDatabase::addMeeting(const Meeting& m)
 	{
 		updatePostponedChanges();
 
+		delete[] meetingPtrs;
 		for (size_t i = 0; i < toRemCnt; i++)
 			delete toRem[i];
 		for (size_t i = 0; i < toAddCnt; i++)
 			delete toAdd[i];
-		toRemCnt = toAddCnt = 0;
+		load();
 	}
 }
 
