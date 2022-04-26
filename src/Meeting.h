@@ -27,6 +27,8 @@ public:
 	const String& getTitle() const;
 	const String& getDescription() const;
 
+	static Time getStartTimeFromBinaryFile(std::fstream &f);
+
 public:
 	bool intersects(const Meeting& other) const;
 	friend bool operator <(const Meeting& lhs, const Meeting& rhs);

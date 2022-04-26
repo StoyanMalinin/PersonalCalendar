@@ -2,6 +2,12 @@
 
 #include <iostream>
 
+Time::Time()
+{
+    this->hour = 0;
+    this->day = 1; this->month = 1; this->year = 2000;
+}
+
 Time::Time(unsigned char hour, unsigned day, unsigned char month, unsigned short int year)
 {
     try
@@ -130,6 +136,11 @@ bool operator<=(const Time& lhs, const Time& rhs)
     if (lhs.hour != rhs.hour) return lhs.hour < rhs.hour;
 
     return true;
+}
+
+bool operator==(const Time& lhs, const Time& rhs)
+{
+    return (lhs.hour==rhs.hour && lhs.day==rhs.day && lhs.month==rhs.month && lhs.year==rhs.year);
 }
 
 std::ostream& operator<<(std::ostream& os, const Time& t)

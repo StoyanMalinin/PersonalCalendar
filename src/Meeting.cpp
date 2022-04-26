@@ -57,6 +57,18 @@ const String& Meeting::getDescription() const
 	return description;
 }
 
+Time Meeting::getStartTimeFromBinaryFile(std::fstream& f)
+{
+	size_t filePos = f.tellg();
+
+	Time t; 
+	f.read((char*)&t, sizeof(Time));
+
+	f.seekg(filePos, std::ios::beg);
+
+	return t;
+}
+
 bool Meeting::intersects(const Meeting & other) const
 {
 	const Meeting* first, * second;
@@ -99,21 +111,25 @@ void Meeting::swap(Meeting& other)
 
 void Meeting::skipInBinaryFile(std::fstream& f)
 {
-	f.ignore(sizeof(Time));
-	if (f.eof() == true) throw "Invalid file format!";
+	f.flush();
+
+	Time t;
+	f.read((char*)&t, sizeof(Time));
+	//f.ignore(sizeof(Time));
+	if (f.fail() == true) throw "Invalid file format!";
 	f.ignore(sizeof(unsigned char));
-	if (f.eof() == true) throw "Invalid file format!";
+	if (f.fail() == true) throw "Invalid file format!";
 
 	size_t len = 0;
 	f.read((char*)&len, sizeof(size_t));
-	if (f.eof() == true) throw "Invalid file format!";
+	if (f.fail() == true) throw "Invalid file format!";
 	f.ignore(len * sizeof(char));
-	if (f.eof() == true) throw "Invalid file format!";
+	if (f.fail() == true) throw "Invalid file format!";
 
 	f.read((char*)&len, sizeof(size_t));
-	if (f.eof() == true) throw "Invalid file format!";
+	if (f.fail() == true) throw "Invalid file format!";
 	f.ignore(len * sizeof(char));
-	if (f.eof() == true) throw "Invalid file format!";
+	if (f.fail() == true) throw "Invalid file format!";
 }
 
 bool operator<(const Meeting& lhs, const Meeting& rhs)

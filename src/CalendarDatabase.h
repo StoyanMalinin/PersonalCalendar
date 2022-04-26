@@ -9,11 +9,12 @@
 class CalendarDatabase
 {
 private:
-	static const size_t MAX_POSPONED = 10;
+	static const size_t MAX_POSPONED = 5;
 
 private:
-	std::fstream f;
-	
+	mutable std::fstream f;
+	char *fileName, *tmpBuffFileName;
+
 	size_t meetingCnt;
 	size_t* meetingPtrs;
 	
@@ -41,9 +42,15 @@ public:
 	void addMeeting(Meeting&& m);
 private:
 	void updatePostponedChanges();
+	bool checkIfRemoved(const Time& t) const;
+	bool checkIfRemoved(const Meeting& m) const;
 
 public:
 	static size_t getBinaryFileLen(std::fstream& f);
+	static void appendBinaryFileContent(std::fstream& destination, std::fstream& source);
+
+public:
+	void debugDatabase(std::ostream &os) const;
 };
 
 #endif // !__CALENDARDATABASE_H

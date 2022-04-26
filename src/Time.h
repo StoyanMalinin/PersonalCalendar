@@ -10,6 +10,7 @@ private:
 	unsigned short int year;
 
 public:
+	Time();
 	Time(unsigned char hour, unsigned day, unsigned char month, unsigned short int year);
 
 public:
@@ -35,6 +36,7 @@ public:
 
 	friend bool operator <(const Time& lhs, const Time& rhs);
 	friend bool operator <=(const Time& lhs, const Time& rhs);
+	friend bool operator ==(const Time& lhs, const Time& rhs);
 	friend std::ostream& operator <<(std::ostream& os, const Time& t);
 };
 
