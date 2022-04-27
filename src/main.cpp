@@ -73,10 +73,19 @@ void test2()
 	db.addMeeting(Meeting(Time(12, 22, 4, 2002), 2, String("rd"), String("yoanko 4rd")));
 	db.debugDatabase(std::cout);
 
+	Meeting mShega1 = Meeting(Time(1, 1, 4, 2022), 2, String("shega"), String("ibavam sa be"));
+	Meeting mShega2 = Meeting(Time(5, 2, 4, 2022), 2, String("mai ne e shega"), String("ibavam sa be"));
+	Meeting mShega3 = Meeting(Time(11, 22, 4, 2002), 2, String("mai nqma da stane rabota"), String("ne se ibavam"));
+	db.addMeeting(mShega1);
+	db.debugDatabase(std::cout);
+
 	db.addMeeting(Meeting(Time(15, 19, 11, 2002), 2, String("rd"), String("stoqn 4rd")));
 	db.debugDatabase(std::cout);
 
-	db.addMeeting(Meeting(Time(1, 1, 4, 2022), 2, String("shega"), String("ibavam sa be")));
+	db.changeMeetings(mShega1, mShega2);
+	db.debugDatabase(std::cout);
+
+	db.changeMeetings(mShega2, mShega3);
 	db.debugDatabase(std::cout);
 }
 
@@ -85,7 +94,7 @@ int main()
 	//doctest::Context().run();
 
 	//test1();
-	//test2();
+	test2();
 
 	//prepare();
 	//

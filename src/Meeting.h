@@ -29,6 +29,7 @@ public:
 	Time getEndTime() const;
 
 	static Time getStartTimeFromBinaryFile(std::fstream &f);
+	static Time getEndTimeFromBinaryFile(std::fstream &f);
 
 public:
 	bool intersects(const Meeting& other) const;

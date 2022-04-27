@@ -183,6 +183,8 @@ void CalendarDatabase::addMeeting(const Meeting& m)
 
 			for (size_t j = i; j + 1 < toRemCnt; j++) std::swap(toRem[j], toRem[j + 1]);
 			toRemCnt--;
+
+			return;
 		}
 	}
 
@@ -312,6 +314,18 @@ void CalendarDatabase::getRangeReport(const Time& l, const Time& r, size_t& n, M
 	f.seekg(filePos, std::ios::beg);
 }
 
+bool CalendarDatabase::changeMeetings(const Meeting& oldMeeting, const Meeting& newMeeting)
+{
+	remMeeting(oldMeeting.getStartTime());
+	
+	if (checkCollisionDb(newMeeting) == false && checkCollisionPostponed(newMeeting) == false)
+		addMeeting(newMeeting);
+	else
+		addMeeting(oldMeeting);
+
+	return false;
+}
+
 void CalendarDatabase::updatePostponedChanges()
 {
 	f.flush();
@@ -432,6 +446,50 @@ size_t CalendarDatabase::getFirstAFterPostponed(const Time& t) const
 	if (toAdd[l]->getStartTime() >= t) return l;
 	if (toAdd[r]->getStartTime() >= t) return r;
 	return toAddCnt;
+}
+
+bool CalendarDatabase::checkCollisionDb(const Meeting& m) const
+{
+	if (meetingCnt == 0) return false;
+
+	size_t filePos = f.tellg();
+
+	int l = 0, r = meetingCnt - 1, mid;
+	while (l + 1 < r)
+	{
+		mid = (l + r) / 2;
+
+		f.seekg(meetingPtrs[mid]);
+		if (Meeting::getEndTimeFromBinaryFile(f) >= m.getStartTime()) r = mid;
+		else l = mid + 1;
+	}
+
+	f.seekg(meetingPtrs[l]);
+	if (Meeting::getEndTimeFromBinaryFile(f) >= m.getStartTime()) return true;
+
+	f.seekg(meetingPtrs[r]);
+	if (Meeting::getEndTimeFromBinaryFile(f) >= m.getStartTime()) return true;
+
+	f.seekg(filePos, std::ios::beg);
+	return false;
+}
+
+bool CalendarDatabase::checkCollisionPostponed(const Meeting& m) const
+{
+	if (toAddCnt == 0) return false;
+
+	int l = 0, r = toAddCnt - 1, mid;
+	while (l + 1 < r)
+	{
+		mid = (l + r) / 2;
+
+		if (toAdd[mid]->getEndTime() >= m.getStartTime()) r = mid;
+		else l = mid + 1;
+	}
+
+	if (toAdd[l]->intersects(m) == true) return true;
+	if (toAdd[r]->intersects(m) == true) return true;
+	return false;
 }
 
 size_t CalendarDatabase::getBinaryFileLen(std::fstream& f)

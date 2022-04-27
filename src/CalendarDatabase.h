@@ -41,8 +41,9 @@ public:
 	void remMeeting(const Meeting& m);
 	void addMeeting(const Meeting& m);
 	void addMeeting(Meeting&& m);
-
 	void getRangeReport(const Time& l, const Time& r, size_t &n, Meeting **&arr);
+	bool changeMeetings(const Meeting& oldMeeting, const Meeting& newMeeting);
+
 private:
 	void updatePostponedChanges();
 	bool checkIfRemoved(const Time& t) const;
@@ -51,6 +52,8 @@ private:
 	size_t getFirstAfterDb(const Time& t) const;
 	size_t getFirstAFterPostponed(const Time& t) const;
 
+	bool checkCollisionDb(const Meeting& m) const;
+	bool checkCollisionPostponed(const Meeting& m) const;
 public:
 	static size_t getBinaryFileLen(std::fstream& f);
 	static void appendBinaryFileContent(std::fstream& destination, std::fstream& source);
