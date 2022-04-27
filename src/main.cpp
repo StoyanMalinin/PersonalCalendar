@@ -59,11 +59,33 @@ void test1()
 	std::cout << n << '\n';
 }
 
+void test2()
+{
+	CalendarDatabase db("calendar.dat");
+	db.load();
+
+	db.addMeeting(Meeting(Time(12, 22, 4, 2002), 2, String("rd"), String("yoanko 4rd")));
+	db.debugDatabase(std::cout);
+
+	db.remMeeting(Time(12, 22, 4, 2002));
+	db.debugDatabase(std::cout);
+
+	db.addMeeting(Meeting(Time(12, 22, 4, 2002), 2, String("rd"), String("yoanko 4rd")));
+	db.debugDatabase(std::cout);
+
+	db.addMeeting(Meeting(Time(15, 19, 11, 2002), 2, String("rd"), String("stoqn 4rd")));
+	db.debugDatabase(std::cout);
+
+	db.addMeeting(Meeting(Time(1, 1, 4, 2022), 2, String("shega"), String("ibavam sa be")));
+	db.debugDatabase(std::cout);
+}
+
 int main()
 {
 	//doctest::Context().run();
 
-	test1();
+	//test1();
+	//test2();
 
 	//prepare();
 	//

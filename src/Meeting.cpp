@@ -147,6 +147,11 @@ bool operator<=(const Meeting& lhs, const Meeting& rhs)
 	return lhs.startTime <= rhs.startTime;
 }
 
+bool operator==(const Meeting& lhs, const Meeting& rhs)
+{
+	return lhs.startTime == rhs.startTime;
+}
+
 std::ostream& operator<<(std::ostream& os, const Meeting& m)
 {
 	os << m.startTime << " " << (unsigned short int)m.duration << " " << m.title << " " << m.description;

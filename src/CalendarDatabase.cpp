@@ -148,6 +148,12 @@ void CalendarDatabase::remMeeting(const Time& t)
 	toRem[toRemCnt] = new Time(t);
 	toRemCnt++;
 
+	for (size_t i = toRemCnt - 1; i >= 1; i--)
+	{
+		if (*toRem[i] < *toRem[i - 1]) std::swap(toRem[i], toRem[i - 1]);
+		else break;
+	}
+
 	if (toRemCnt + toAddCnt >= MAX_POSPONED)
 	{
 		updatePostponedChanges();
@@ -168,12 +174,27 @@ void CalendarDatabase::remMeeting(const Meeting& m)
 
 void CalendarDatabase::addMeeting(const Meeting& m)
 {
+	for (size_t i = 0; i < toRemCnt; i++)
+	{
+		if (*toRem[i] == m.getStartTime())
+		{
+			delete toRem[i];
+			toRem[i] = nullptr;
+
+			for (size_t j = i; j + 1 < toRemCnt; j++) std::swap(toRem[j], toRem[j + 1]);
+			toRemCnt--;
+		}
+	}
+
+	for (size_t i = 0; i < toAddCnt; i++)
+		if (*toAdd[i] == m)  return;
+
 	toAdd[toAddCnt] = new Meeting(m);
 	toAddCnt++;
 
-	for (size_t i = toRemCnt - 1; i >= 1; i--)
+	for (size_t i = toAddCnt - 1; i >= 1; i--)
 	{
-		if (*toRem[i] < *toRem[i - 1]) std::swap(toRem[i], toRem[i - 1]);
+		if (*toAdd[i] < *toAdd[i - 1]) std::swap(toAdd[i], toAdd[i - 1]);
 		else break;
 	}
 
@@ -192,8 +213,24 @@ void CalendarDatabase::addMeeting(const Meeting& m)
 
 void CalendarDatabase::addMeeting(Meeting&& m)
 {
+	for (size_t i = 0; i < toRemCnt; i++)
+	{
+		if (*toRem[i] == m.getStartTime())
+		{
+			delete toRem[i];
+			toRem[i] = nullptr;
+
+			for (size_t j = i; j + 1 < toRemCnt; j++) std::swap(toRem[j], toRem[j + 1]);
+			toRemCnt--;
+		}
+	}
+	
+	for (size_t i = 0; i < toAddCnt; i++)
+		if (*toAdd[i] == m)  return;
+
 	toAdd[toAddCnt] = new Meeting(m);
 	toAddCnt++;
+
 
 	for (size_t i = toAddCnt - 1; i >= 1; i--)
 	{
@@ -202,7 +239,16 @@ void CalendarDatabase::addMeeting(Meeting&& m)
 	}
 
 	if (toRemCnt + toAddCnt >= MAX_POSPONED)
+	{
 		updatePostponedChanges();
+
+		delete[] meetingPtrs;
+		for (size_t i = 0; i < toRemCnt; i++)
+			delete toRem[i];
+		for (size_t i = 0; i < toAddCnt; i++)
+			delete toAdd[i];
+		load();
+	}
 }
 
 void CalendarDatabase::getRangeReport(const Time& l, const Time& r, size_t& n, Meeting**& arr)

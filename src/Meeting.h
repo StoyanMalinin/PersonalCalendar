@@ -34,6 +34,7 @@ public:
 	bool intersects(const Meeting& other) const;
 	friend bool operator <(const Meeting& lhs, const Meeting& rhs);
 	friend bool operator <=(const Meeting& lhs, const Meeting& rhs);
+	friend bool operator ==(const Meeting& lhs, const Meeting& rhs);
 
 	void swap(Meeting& other);
 public:
