@@ -93,6 +93,9 @@ void test2()
 
 	std::cout << "StringReport: " << "shega" << '\n';
 	db.printStringReport((const char*)"shega", std::cout);
+
+	std::cout << "weekday report:" << '\n';
+	db.printRangeBusynessWeekDayReport(Time(0, 22, 4, 2002), Time(23, 19, 11, 2002), std::cout);
 }
 
 int main()
@@ -100,7 +103,7 @@ int main()
 	//doctest::Context().run();
 
 	//test1();
-	test2();
+	//test2();
 
 	//prepare();
 	//

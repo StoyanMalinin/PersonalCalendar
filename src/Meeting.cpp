@@ -89,6 +89,19 @@ Time Meeting::getEndTimeFromBinaryFile(std::fstream& f)
 	return t + duration;
 }
 
+unsigned char Meeting::getDurationFromBinaryFile(std::fstream& f)
+{
+	size_t filePos = f.tellg();
+
+	f.ignore(sizeof(Time));
+
+	unsigned char duration;
+	f.read((char*)&duration, sizeof(unsigned char));
+
+	f.seekg(filePos, std::ios::beg);
+	return duration;
+}
+
 bool Meeting::intersects(const Meeting & other) const
 {
 	const Meeting* first, * second;

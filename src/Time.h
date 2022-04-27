@@ -18,6 +18,8 @@ public:
 	unsigned char getDay() const;
 	unsigned char getHour() const;
 	unsigned short int getYear() const;
+	//todo: add exception for non-existing dates
+	size_t getWeekDay() const;
 
 public:
 	static bool checkLeapYear(unsigned short int year);
@@ -39,6 +41,7 @@ public:
 	friend bool operator <=(const Time& lhs, const Time& rhs);
 	friend bool operator >=(const Time& lhs, const Time& rhs);
 	friend bool operator ==(const Time& lhs, const Time& rhs);
+	friend bool operator !=(const Time& lhs, const Time& rhs);
 	friend std::ostream& operator <<(std::ostream& os, const Time& t);
 };
 

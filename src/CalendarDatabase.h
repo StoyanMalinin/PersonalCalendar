@@ -45,7 +45,7 @@ public:
 	bool changeMeetings(const Meeting& oldMeeting, const Meeting& newMeeting);
 	void printStringReport(const String& s, std::ostream& os) const;
 	void printStringReport(const char *s, size_t len, std::ostream& os) const;
-
+	void printRangeBusynessWeekDayReport(const Time& l, const Time& r, std::ostream& os) const;
 private:
 	void updatePostponedChanges();
 	bool checkIfRemoved(const Time& t) const;

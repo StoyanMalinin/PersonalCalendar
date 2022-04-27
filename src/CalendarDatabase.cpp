@@ -362,6 +362,43 @@ void CalendarDatabase::printStringReport(const char* s, size_t len, std::ostream
 	f.seekg(filePos, std::ios::beg);
 }
 
+void CalendarDatabase::printRangeBusynessWeekDayReport(const Time& l, const Time& r, std::ostream& os) const
+{
+	size_t filePos = f.tellg();
+	size_t weekdayBusyness[7] = { 0, 0, 0, 0, 0, 0, 0  };
+
+	size_t firstAfterDb = getFirstAfterDb(l), firstAfterPostponed = getFirstAFterPostponed(l);
+	for (size_t i = firstAfterDb; i < meetingCnt; i++)
+	{
+		f.seekg(meetingPtrs[i], std::ios::beg);
+		Time t = Meeting::getStartTimeFromBinaryFile(f);
+
+		if (t > r) break;
+		if (checkIfRemoved(t) == false)
+		{
+			weekdayBusyness[t.getWeekDay()] += Meeting::getDurationFromBinaryFile(f);
+		}
+	}
+	for (size_t i = firstAfterPostponed; i < toAddCnt; i++)
+	{
+		if (toAdd[i]->getStartTime() > r) break;
+		if (checkIfRemoved(toAdd[i]->getStartTime()) == false)
+		{
+			weekdayBusyness[toAdd[i]->getStartTime().getWeekDay()] += toAdd[i]->getDuration();
+		}
+	}
+
+	f.seekg(filePos, std::ios::beg);
+
+	size_t weekdayInds[7] = { 0, 1, 2, 3, 4, 5, 6 };
+	for (size_t i = 0; i < 7; i++)
+		for (size_t j = 0; j < 7 - i - 1; j++)
+			if (weekdayBusyness[weekdayInds[j]] > weekdayBusyness[weekdayInds[j + 1]]) std::swap(weekdayInds[j], weekdayInds[j + 1]);
+
+	static const char* weekdayNames[] = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
+	for (size_t i = 0; i < 7; i++) os << weekdayNames[weekdayInds[i]] << ": " << weekdayBusyness[weekdayInds[i]] << '\n';
+}
+
 void CalendarDatabase::updatePostponedChanges()
 {
 	f.flush();
