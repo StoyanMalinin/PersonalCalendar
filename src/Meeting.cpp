@@ -57,6 +57,11 @@ const String& Meeting::getDescription() const
 	return description;
 }
 
+Time Meeting::getEndTime() const
+{
+	return startTime + (size_t)duration;
+}
+
 Time Meeting::getStartTimeFromBinaryFile(std::fstream& f)
 {
 	size_t filePos = f.tellg();

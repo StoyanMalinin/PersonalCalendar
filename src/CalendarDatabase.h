@@ -41,10 +41,15 @@ public:
 	void remMeeting(const Meeting& m);
 	void addMeeting(const Meeting& m);
 	void addMeeting(Meeting&& m);
+
+	void getRangeReport(const Time& l, const Time& r, size_t &n, Meeting **&arr);
 private:
 	void updatePostponedChanges();
 	bool checkIfRemoved(const Time& t) const;
 	bool checkIfRemoved(const Meeting& m) const;
+
+	size_t getFirstAfterDb(const Time& t) const;
+	size_t getFirstAFterPostponed(const Time& t) const;
 
 public:
 	static size_t getBinaryFileLen(std::fstream& f);

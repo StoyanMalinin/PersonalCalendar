@@ -205,6 +205,67 @@ void CalendarDatabase::addMeeting(Meeting&& m)
 		updatePostponedChanges();
 }
 
+void CalendarDatabase::getRangeReport(const Time& l, const Time& r, size_t& n, Meeting**& arr)
+{
+	size_t filePos = f.tellg();
+
+	size_t firstAfterDb = getFirstAfterDb(l), firstAfterPostponed = getFirstAFterPostponed(l);
+
+	n = 0;
+	for (size_t i = firstAfterDb; i < meetingCnt; i++)
+	{
+		f.seekg(meetingPtrs[i], std::ios::beg);
+		Time t = Meeting::getStartTimeFromBinaryFile(f);
+		
+		if (t > r) break;
+		if(checkIfRemoved(t)==false) n++;
+	}
+	for (size_t i = firstAfterPostponed; i < toAddCnt; i++)
+	{
+		if (toAdd[i]->getStartTime() > r) break;
+		if (checkIfRemoved(toAdd[i]->getStartTime()) == false) n++;
+	}
+
+	size_t arrInd = 0;
+	arr = new Meeting*[n];
+
+	size_t dbPtr = firstAfterDb, postponedPtr = firstAfterPostponed;
+	for (; dbPtr < meetingCnt; dbPtr++)
+	{
+		f.seekg(meetingPtrs[dbPtr], std::ios::beg);
+		Time t = Meeting::getStartTimeFromBinaryFile(f);
+
+		if (t > r) break;
+		if (checkIfRemoved(t) == true) continue;
+
+		while (postponedPtr < toAddCnt && toAdd[postponedPtr]->getStartTime() < t)
+		{
+			if (checkIfRemoved(toAdd[postponedPtr]->getStartTime()) == false)
+			{
+				arr[arrInd] = new Meeting(*toAdd[postponedPtr]);
+				arrInd++;
+			}
+			postponedPtr++;
+		}
+		
+		arr[arrInd] = (Meeting*)malloc(sizeof(Meeting));
+		arr[arrInd]->fixWhenImproperlyAllocated();
+		arr[arrInd]->loadFromBinaryFile(f);
+		arrInd++;
+	}
+	while (postponedPtr < toAddCnt)
+	{
+		if (checkIfRemoved(toAdd[postponedPtr]->getStartTime()) == false)
+		{
+			arr[arrInd] = new Meeting(*toAdd[postponedPtr]);
+			arrInd++;
+		}
+		postponedPtr++;
+	}
+
+	f.seekg(filePos, std::ios::beg);
+}
+
 void CalendarDatabase::updatePostponedChanges()
 {
 	f.flush();
@@ -280,6 +341,51 @@ bool CalendarDatabase::checkIfRemoved(const Time& t) const
 bool CalendarDatabase::checkIfRemoved(const Meeting& m) const
 {
 	return checkIfRemoved(m.getStartTime());
+}
+
+size_t CalendarDatabase::getFirstAfterDb(const Time& t) const
+{
+	if (meetingCnt == 0) return 0;
+
+	f.flush();
+	size_t filePos = f.tellg();
+
+	int l = 0, r = meetingCnt - 1, mid;
+	while (l + 1 < r)
+	{
+		mid = (l + r) / 2;
+
+		f.seekg(meetingPtrs[mid], std::ios::beg);
+		if (Meeting::getStartTimeFromBinaryFile(f) < t) l = mid + 1;
+		else r = mid;
+	}
+
+	f.seekg(meetingPtrs[l], std::ios::beg);
+	if (Meeting::getStartTimeFromBinaryFile(f) >= t) return l;
+
+	f.seekg(meetingPtrs[r], std::ios::beg);
+	if (Meeting::getStartTimeFromBinaryFile(f) >= t) return r;
+
+	f.seekg(filePos, std::ios::beg);
+	return meetingCnt;
+}
+
+size_t CalendarDatabase::getFirstAFterPostponed(const Time& t) const
+{
+	if (toAddCnt == 0) return 0;
+
+	int l = 0, r = toAddCnt - 1, mid;
+	while (l + 1 < r)
+	{
+		mid = (l + r) / 2;
+
+		if (toAdd[mid]->getStartTime() < t) l = mid + 1;
+		else r = mid;
+	}
+	
+	if (toAdd[l]->getStartTime() >= t) return l;
+	if (toAdd[r]->getStartTime() >= t) return r;
+	return toAddCnt;
 }
 
 size_t CalendarDatabase::getBinaryFileLen(std::fstream& f)

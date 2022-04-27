@@ -35,7 +35,9 @@ public:
 	Time& operator +=(size_t h);
 
 	friend bool operator <(const Time& lhs, const Time& rhs);
+	friend bool operator >(const Time& lhs, const Time& rhs);
 	friend bool operator <=(const Time& lhs, const Time& rhs);
+	friend bool operator >=(const Time& lhs, const Time& rhs);
 	friend bool operator ==(const Time& lhs, const Time& rhs);
 	friend std::ostream& operator <<(std::ostream& os, const Time& t);
 };

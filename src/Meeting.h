@@ -26,6 +26,7 @@ public:
 	unsigned char getDuration() const;
 	const String& getTitle() const;
 	const String& getDescription() const;
+	Time getEndTime() const;
 
 	static Time getStartTimeFromBinaryFile(std::fstream &f);
 

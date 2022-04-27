@@ -46,18 +46,24 @@ void test1()
 	db.addMeeting(Meeting(Time(14, 19, 11, 2002), 2, String("rd"), String("rozhdenik sam malko az")));
 	db.debugDatabase(std::cout);
 
-	db.remMeeting(Time(14, 19, 11, 2002));
+	db.remMeeting(Time(12, 22, 4, 2002));
 	db.debugDatabase(std::cout);
 
-	db.addMeeting(Meeting(Time(16, 1, 4, 2015), 2, String("shega"), String("ibavam sa be")));
+	db.addMeeting(Meeting(Time(16, 19, 11, 2002), 1, String("after parti"), String("shte se pie mnogo qko")));
 	db.debugDatabase(std::cout);
+
+	size_t n = 0;
+	Meeting** arr = nullptr;
+
+	db.getRangeReport(Time(0, 19, 11, 2002), Time(23, 19, 11, 2002), n, arr);
+	std::cout << n << '\n';
 }
 
 int main()
 {
 	//doctest::Context().run();
 
-	//test1();
+	test1();
 
 	//prepare();
 	//

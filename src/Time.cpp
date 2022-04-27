@@ -128,12 +128,32 @@ bool operator<(const Time& lhs, const Time& rhs)
     return false;
 }
 
+bool operator>(const Time& lhs, const Time& rhs)
+{
+    if (lhs.year != rhs.year) return lhs.year > rhs.year;
+    if (lhs.month != rhs.month) return lhs.month > rhs.month;
+    if (lhs.day != rhs.day) return lhs.month > rhs.month;
+    if (lhs.hour != rhs.hour) return lhs.hour > rhs.hour;
+
+    return false;
+}
+
 bool operator<=(const Time& lhs, const Time& rhs)
 {
     if (lhs.year != rhs.year) return lhs.year < rhs.year;
     if (lhs.month != rhs.month) return lhs.month < rhs.month;
     if (lhs.day != rhs.day) return lhs.month < rhs.month;
     if (lhs.hour != rhs.hour) return lhs.hour < rhs.hour;
+
+    return true;
+}
+
+bool operator>=(const Time& lhs, const Time& rhs)
+{
+    if (lhs.year != rhs.year) return lhs.year > rhs.year;
+    if (lhs.month != rhs.month) return lhs.month > rhs.month;
+    if (lhs.day != rhs.day) return lhs.month > rhs.month;
+    if (lhs.hour != rhs.hour) return lhs.hour > rhs.hour;
 
     return true;
 }
