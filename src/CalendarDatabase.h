@@ -9,7 +9,7 @@
 class CalendarDatabase
 {
 private:
-	static const size_t MAX_POSPONED = 5;
+	static const size_t MAX_POSPONED = 3;
 
 private:
 	mutable std::fstream f;
@@ -37,6 +37,7 @@ public:
 	void load();
 
 public:
+	void remMeeting(const Time& t);
 	void remMeeting(const Meeting& m);
 	void addMeeting(const Meeting& m);
 	void addMeeting(Meeting&& m);

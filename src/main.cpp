@@ -35,22 +35,42 @@ void prepare()
 	f.close();
 }
 
+void test1()
+{
+	CalendarDatabase db("calendar.dat");
+	db.load();
+
+	db.addMeeting(Meeting(Time(12, 22, 4, 2002), 2, String("rd"), String("yoanko 4rd")));
+	db.debugDatabase(std::cout);
+
+	db.addMeeting(Meeting(Time(14, 19, 11, 2002), 2, String("rd"), String("rozhdenik sam malko az")));
+	db.debugDatabase(std::cout);
+
+	db.remMeeting(Time(14, 19, 11, 2002));
+	db.debugDatabase(std::cout);
+
+	db.addMeeting(Meeting(Time(16, 1, 4, 2015), 2, String("shega"), String("ibavam sa be")));
+	db.debugDatabase(std::cout);
+}
+
 int main()
 {
 	//doctest::Context().run();
 
-	prepare();
-	
-	CalendarDatabase db("calendar.dat");
-	try
-	{
-		db.load();
-	}
-	catch (...)
-	{
-		std::cerr << "koftii" << '\n';
-	}
-	db.debugDatabase(std::cout);
-	
-	db.remMeeting(Meeting(Time(12, 19, 6, 2019), 2, String("gei"), String("pedal")));
+	//test1();
+
+	//prepare();
+	//
+	//CalendarDatabase db("calendar.dat");
+	//try
+	//{
+	//	db.load();
+	//}
+	//catch (...)
+	//{
+	//	std::cerr << "koftii" << '\n';
+	//}
+	//db.debugDatabase(std::cout);
+	//
+	//db.remMeeting(Meeting(Time(12, 19, 6, 2019), 2, String("gei"), String("pedal")));
 }

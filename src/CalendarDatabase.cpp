@@ -80,7 +80,21 @@ void CalendarDatabase::closeFile()
 void CalendarDatabase::load()
 {
 	if (f.is_open() == false)
-		throw "Could not open file!";
+	{
+		f.clear();
+		f.close();
+
+		std::ofstream tmp(fileName);
+		tmp.close();
+
+		f.open(fileName, std::ios::in | std::ios::out | std::ios::binary);
+		
+		size_t zero = 0;
+		f.write((const char*)&zero, sizeof(size_t));
+		f.write((const char*)&zero, sizeof(size_t));
+		f.write((const char*)&zero, sizeof(size_t));
+		this->postponedStartPtr = sizeof(size_t);
+	}
 	if (f.fail() == true)
 		throw "File is corrupted!";
 	if (getBinaryFileLen(f) == 0)
@@ -129,9 +143,9 @@ void CalendarDatabase::load()
 	}
 }
 
-void CalendarDatabase::remMeeting(const Meeting& m)
+void CalendarDatabase::remMeeting(const Time& t)
 {
-	toRem[toRemCnt] = new Time(m.getStartTime());
+	toRem[toRemCnt] = new Time(t);
 	toRemCnt++;
 
 	if (toRemCnt + toAddCnt >= MAX_POSPONED)
@@ -145,6 +159,11 @@ void CalendarDatabase::remMeeting(const Meeting& m)
 			delete toAdd[i];
 		load();
 	}
+}
+
+void CalendarDatabase::remMeeting(const Meeting& m)
+{
+	remMeeting(m.getStartTime());
 }
 
 void CalendarDatabase::addMeeting(const Meeting& m)
@@ -322,32 +341,13 @@ void CalendarDatabase::debugDatabase(std::ostream& os) const
 		delete m;
 	}
 	
-	size_t currToRemCnt = 0;
-	f.read((char*)&currToRemCnt, sizeof(size_t));
-	os << "toRemCnt: " << currToRemCnt << '\n';
-
-	for (size_t i = 0; i < currToRemCnt; i++)
-	{
-		Time *t = (Time*)malloc(sizeof(Time));
-		f.read((char*)t, sizeof(Time));
-
-		os << *t << '\n';
-		delete t;
-	}
-
-	size_t currToAddCnt = 0;
-	f.read((char*)&currToAddCnt, sizeof(size_t));
-	os << "toAddCnt: " << currToAddCnt << '\n';
-
-	for (size_t i = 0; i < currToAddCnt; i++)
-	{
-		Meeting* m = (Meeting*)malloc(sizeof(Meeting));
-		m->fixWhenImproperlyAllocated();
-		m->loadFromBinaryFile(f);
-
-		os << *m << '\n';
-		delete m;
-	}
+	os << "Removals: " << '\n';
+	for (size_t i = 0; i < toRemCnt; i++)
+		os << *toRem[i] << '\n';
+	
+	os << "Additions" << '\n';
+	for (size_t i = 0; i < toAddCnt; i++)
+		os << *toAdd[i] << '\n';
 	
 	f.seekg(filePos, std::ios::beg);
 	os << " ---------------- " << '\n';
