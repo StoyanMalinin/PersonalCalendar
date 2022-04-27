@@ -38,7 +38,6 @@ private:
 	void resize(size_t newCap);
 	static bool checkTooSmall(size_t len, size_t cap);
 	static bool checkTooLarge(size_t len, size_t cap);
-	static size_t* getPrefixFunction(const char* s, size_t len);
 
 public:
 	bool findSubstr(String& s) const;
@@ -46,6 +45,7 @@ public:
 	bool findSubstr(const char* s, size_t n) const;
 	bool findSubstr(const char* s, size_t n, const size_t* f) const;
 	bool findSubstr(const String& s, const size_t* f) const;
+	static size_t* getPrefixFunction(const char* s, size_t len);
 
 public:
 	String& operator +=(const String& other);

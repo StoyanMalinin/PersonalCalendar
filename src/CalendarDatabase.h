@@ -43,6 +43,8 @@ public:
 	void addMeeting(Meeting&& m);
 	void getRangeReport(const Time& l, const Time& r, size_t &n, Meeting **&arr);
 	bool changeMeetings(const Meeting& oldMeeting, const Meeting& newMeeting);
+	void printStringReport(const String& s, std::ostream& os) const;
+	void printStringReport(const char *s, size_t len, std::ostream& os) const;
 
 private:
 	void updatePostponedChanges();

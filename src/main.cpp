@@ -87,6 +87,12 @@ void test2()
 
 	db.changeMeetings(mShega2, mShega3);
 	db.debugDatabase(std::cout);
+
+	std::cout << "StringReport: " << "rd" << '\n';
+	db.printStringReport((const char*)"rd", std::cout);
+
+	std::cout << "StringReport: " << "shega" << '\n';
+	db.printStringReport((const char*)"shega", std::cout);
 }
 
 int main()

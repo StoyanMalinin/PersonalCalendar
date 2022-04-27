@@ -326,6 +326,42 @@ bool CalendarDatabase::changeMeetings(const Meeting& oldMeeting, const Meeting& 
 	return false;
 }
 
+void CalendarDatabase::printStringReport(const String& s, std::ostream& os) const
+{
+	printStringReport(s.getData(), s.getLen(), os);
+}
+
+void CalendarDatabase::printStringReport(const char* s, size_t len, std::ostream& os) const
+{
+	size_t filePos = f.tellg();
+
+	size_t* pref = String::getPrefixFunction(s, len);
+	for (size_t i = 0; i < meetingCnt; i++)
+	{
+		Meeting* m;
+		m = (Meeting*)malloc(sizeof(Meeting));
+		m->fixWhenImproperlyAllocated();
+		m->loadFromBinaryFile(f);
+
+		if (checkIfRemoved(*m) == false && (m->getTitle().findSubstr(s, len, pref) == true || m->getDescription().findSubstr(s, len, pref) == true))
+		{
+			os << *m << '\n';
+		}
+
+		delete m;
+	}
+	for (size_t i = 0; i < toAddCnt; i++)
+	{
+		if (checkIfRemoved(*toAdd[i]) == false && (toAdd[i]->getTitle().findSubstr(s, len, pref) == true || toAdd[i]->getDescription().findSubstr(s, len, pref) == true))
+		{
+			os << *toAdd[i] << '\n';
+		}
+	}
+
+	delete[] pref;
+	f.seekg(filePos, std::ios::beg);
+}
+
 void CalendarDatabase::updatePostponedChanges()
 {
 	f.flush();
