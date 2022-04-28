@@ -91,6 +91,14 @@ size_t* String::getPrefixFunction(const char* s, size_t n)
 	return f;
 }
 
+String& String::operator+=(char c)
+{
+	char addition[2] = { c, '\0'};
+	*this += addition;
+
+	return *this;
+}
+
 bool String::findSubstr(String& s) const
 {
 	size_t* f = getPrefixFunction(s.data, s.len);
@@ -209,6 +217,20 @@ String::~String()
 	deleteDynamic();
 }
 
+String operator+(char c, const String& s)
+{
+	char addition[2] = { c, '\0' };
+	return addition + s;
+}
+
+String operator+(const String& s, char c)
+{
+	String ans = s;
+	ans += c;
+
+	return ans;
+}
+
 std::istream& operator >>(std::istream& is, String& s)
 {
 	char buff[1000];
@@ -276,4 +298,29 @@ void String::swap(String& other)
 	std::swap(len, other.len);
 	std::swap(cap, other.cap);
 	std::swap(data, other.data);
+}
+
+String String::toString(size_t num)
+{
+	if (num == 0) return "0";
+
+	String ans = "";
+	while (num != 0)
+	{
+		ans = (num % 10 + '0') + ans;	
+		num /= 10;
+	}
+
+	return ans;
+}
+
+String String::format(String s, size_t len, char c, bool pos)
+{
+	while (s.len < len)
+	{
+		if (pos == false) s = c + s;
+		else s += c;
+	}
+
+	return s;
 }

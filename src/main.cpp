@@ -119,11 +119,11 @@ void test3()
 
 int main()
 {
-	//doctest::Context().run();
+	doctest::Context().run();
 
 	//test1();
 	//test2();
-	test3();
+	//test3();
 
 	//prepare();
 	//

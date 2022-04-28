@@ -17,6 +17,18 @@ TEST_SUITE("string tests")
 		String s("bababc");
 		CHECK(s.findSubstr((const char*)"babc")==true);
 	}
+
+	TEST_CASE("toString test")
+	{
+		CHECK(String::toString(100) == "100");
+		CHECK(String::toString(0) == "0");
+	}
+
+	TEST_CASE("format test")
+	{
+		CHECK(String::format("5", 2, '0', false) == "05");
+		CHECK(String::format("5", 2, ' ', true) == "5 ");
+	}
 }
 
 TEST_SUITE("Meeting tests")
