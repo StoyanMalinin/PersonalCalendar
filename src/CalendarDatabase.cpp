@@ -253,7 +253,7 @@ void CalendarDatabase::addMeeting(Meeting&& m)
 	}
 }
 
-void CalendarDatabase::getRangeReport(const Time& l, const Time& r, size_t& n, Meeting**& arr)
+void CalendarDatabase::getRangeReport(const Time& l, const Time& r, size_t& n, Meeting**& arr) const
 {
 	size_t filePos = f.tellg();
 
@@ -397,6 +397,52 @@ void CalendarDatabase::printRangeBusynessWeekDayReport(const Time& l, const Time
 
 	static const char* weekdayNames[] = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
 	for (size_t i = 0; i < 7; i++) os << weekdayNames[weekdayInds[i]] << ": " << weekdayBusyness[weekdayInds[i]] << '\n';
+}
+
+bool CalendarDatabase::findFreePlaceInRange(const Time& l, const Time& r, Time& ans, unsigned char duration, unsigned char hLow, unsigned char hHigh) const
+{
+	size_t n;
+	Meeting** m;
+	getRangeReport(l, r, n, m);
+
+	Time last = l;
+	for (size_t i = 0; i <= n; i++)
+	{
+		Time nxt;
+		if (i < n) nxt = m[i]->getStartTime();
+		else nxt = r;
+
+		Time tStart = last;
+		tStart.fitInHourFrame(hLow, hHigh);
+		Time tEnd = tStart + duration;
+		if (hLow <= tEnd.getHour() && tEnd.getHour() <= hHigh && tEnd <= nxt)
+		{
+			for (size_t i = 0; i < n; i++) delete m[i];
+			delete[] m;
+
+			ans = tStart;
+			return true;
+		}
+
+		tStart.nextDay();
+		tStart = Time(hLow, tStart.getDay(), tStart.getMonth(), tStart.getYear());
+		tEnd = tStart + duration;
+		if (hLow <= tEnd.getHour() && tEnd.getHour() <= hHigh && tEnd <= nxt)
+		{
+			for (size_t i = 0; i < n; i++) delete m[i];
+			delete[] m;
+
+			ans = tStart;
+			return true;
+		}
+
+		if (i < n) last = nxt + m[i]->getDuration();
+	}
+
+	for (size_t i = 0; i < n; i++) delete m[i];
+	delete[] m;
+
+	return false;
 }
 
 void CalendarDatabase::updatePostponedChanges()

@@ -105,6 +105,17 @@ void Time::validateConstructor(unsigned char hour, unsigned day, unsigned char m
     if (validateDate(day, month, year) == false) throw "Invalid date argument!";
 }
 
+void Time::fitInHourFrame(unsigned char hLow, unsigned char hHigh)
+{
+    if (hLow <= hour && hour <= hHigh) return;
+    if (hour < hLow) hour = hLow;
+    if (hour > hHigh)
+    {
+        nextDay();
+        hour = hLow;
+    }
+}
+
 void Time::nextHour()
 {
     hour++;

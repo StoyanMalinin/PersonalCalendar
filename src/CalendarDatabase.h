@@ -41,11 +41,13 @@ public:
 	void remMeeting(const Meeting& m);
 	void addMeeting(const Meeting& m);
 	void addMeeting(Meeting&& m);
-	void getRangeReport(const Time& l, const Time& r, size_t &n, Meeting **&arr);
+	void getRangeReport(const Time& l, const Time& r, size_t& n, Meeting**& arr) const;
 	bool changeMeetings(const Meeting& oldMeeting, const Meeting& newMeeting);
 	void printStringReport(const String& s, std::ostream& os) const;
 	void printStringReport(const char *s, size_t len, std::ostream& os) const;
 	void printRangeBusynessWeekDayReport(const Time& l, const Time& r, std::ostream& os) const;
+	bool findFreePlaceInRange(const Time& l, const Time& r, Time& ans, unsigned char duration, unsigned char hLow, unsigned char hHigh) const;
+
 private:
 	void updatePostponedChanges();
 	bool checkIfRemoved(const Time& t) const;

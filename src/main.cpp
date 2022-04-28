@@ -98,12 +98,32 @@ void test2()
 	db.printRangeBusynessWeekDayReport(Time(0, 22, 4, 2002), Time(23, 19, 11, 2002), std::cout);
 }
 
+void test3()
+{
+	CalendarDatabase db("calendar.dat");
+	db.load();
+
+	db.addMeeting(Meeting(Time(10, 28, 4, 2022), 2, "sreshta s maika ti", ""));
+	db.debugDatabase(std::cout);
+
+	db.addMeeting(Meeting(Time(15, 28, 4, 2022), 4, "sreshta s tatko ti", ""));
+	db.debugDatabase(std::cout);
+
+	db.addMeeting(Meeting(Time(10, 29, 4, 2022), 4, "otivam da nahranq kotkata", ""));
+	db.debugDatabase(std::cout);
+
+	Time ans;
+	db.findFreePlaceInRange(Time(0, 28, 4, 2022), Time(23, 29, 4, 2022), ans, 3, 8, 17);
+	std::cout << ans << '\n';
+}
+
 int main()
 {
 	//doctest::Context().run();
 
 	//test1();
 	//test2();
+	test3();
 
 	//prepare();
 	//

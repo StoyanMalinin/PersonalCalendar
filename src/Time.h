@@ -23,13 +23,12 @@ public:
 
 public:
 	static bool checkLeapYear(unsigned short int year);
-
 	static bool validateDate(unsigned char day, unsigned char month, unsigned short int year);
 	static bool validateHour(unsigned char hour);
-
 	static void validateConstructor(unsigned char hour, unsigned day, unsigned char month, unsigned short int year);
 
-private:
+	void fitInHourFrame(unsigned char hLow, unsigned char hHigh);
+public:
 	void nextHour();
 	void nextDay();
 
