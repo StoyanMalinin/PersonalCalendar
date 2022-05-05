@@ -11,6 +11,7 @@ private:
 
 public:
 	Time();
+	Time(unsigned char day, unsigned char month, unsigned short int year);
 	Time(unsigned char hours, unsigned char day, unsigned char month, unsigned short int year);
 	Time(unsigned char hours, unsigned char minutes, unsigned char day, unsigned char month, unsigned short int year);
 

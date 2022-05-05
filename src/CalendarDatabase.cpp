@@ -314,6 +314,23 @@ void CalendarDatabase::getRangeReport(const Time& l, const Time& r, size_t& n, M
 	f.seekg(filePos, std::ios::beg);
 }
 
+void CalendarDatabase::printRangeReport(const Time& l, const Time& r, std::ostream &os) const
+{
+	size_t n;
+	Meeting** arr = nullptr;
+
+	getRangeReport(l, r, n, arr);
+
+	os << "Number of appointments: " << n << '\n';
+	for (size_t i = 0; i < n; i++)
+	{
+		os << *arr[i] << '\n';
+	}
+
+	for (size_t i = 0; i < n; i++) delete arr[i];
+	delete[] arr;
+}
+
 bool CalendarDatabase::changeMeetings(const Meeting& oldMeeting, const Meeting& newMeeting)
 {
 	remMeeting(oldMeeting.getStartTime());

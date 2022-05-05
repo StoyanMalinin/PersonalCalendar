@@ -117,9 +117,14 @@ void test3()
 	std::cout << ans << '\n';
 }
 
+#include "UIHandler.h"
+
 int main()
 {
 	//doctest::Context().run();
+
+	UIHandler uih;
+	uih.run();
 
 	//test1();
 	//test2();

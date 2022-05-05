@@ -11,6 +11,9 @@ Time::Time()
     this->year = 1970;
 }
 
+Time::Time(unsigned char day, unsigned char month, unsigned short int year) : Time(0, day, month, year)
+{}
+
 Time::Time(unsigned char hours, unsigned char day, unsigned char month, unsigned short int year) : Time(hours, 0, day, month, year)
 {}
 
@@ -30,6 +33,7 @@ Time::Time(unsigned char hours, unsigned char minutes, unsigned char day, unsign
     }
 
     this->hours = hours;
+    this->minutes = minutes;
     this->day = day;
     this->month = month;
     this->year = year;
@@ -112,7 +116,8 @@ bool Time::validateMinutes(size_t minutes)
 
 void Time::validateConstructor(size_t hours, size_t minutes, size_t day, size_t month, size_t year)
 {
-    if (validateHours(hours) == false) throw "Invalid hour argument!";
+    if (validateHours(hours) == false) throw "Invalid hours argument!";
+    if (validateMinutes(minutes) == false) throw "Invalid minutes argument!";
     if (validateDate(day, month, year) == false) throw "Invalid date argument!";
 }
 
