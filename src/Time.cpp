@@ -4,15 +4,21 @@
 
 Time::Time()
 {
-    this->hour = 0;
-    this->day = 1; this->month = 1; this->year = 2000;
+    this->hours = 0;
+    this->minutes = 0;
+    this->day = 1;
+    this->month = 1;
+    this->year = 1970;
 }
 
-Time::Time(unsigned char hour, unsigned day, unsigned char month, unsigned short int year)
+Time::Time(unsigned char hours, unsigned char day, unsigned char month, unsigned short int year) : Time(hours, 0, day, month, year)
+{}
+
+Time::Time(unsigned char hours, unsigned char minutes, unsigned char day, unsigned char month, unsigned short int year)
 {
     try
     {
-        validateConstructor(hour, day, month, year);
+        validateConstructor(hours, minutes, day, month, year);
     }
     catch (const char* s)
     {
@@ -23,7 +29,7 @@ Time::Time(unsigned char hour, unsigned day, unsigned char month, unsigned short
         return;
     }
 
-    this->hour = hour;
+    this->hours = hours;
     this->day = day;
     this->month = month;
     this->year = year;
@@ -41,7 +47,7 @@ unsigned char Time::getDay() const
 
 unsigned char Time::getHour() const
 {
-    return hour;
+    return hours;
 }
 
 unsigned short int Time::getYear() const
@@ -51,7 +57,7 @@ unsigned short int Time::getYear() const
 
 size_t Time::getWeekDay() const
 {
-    static const Time knownDates[6] = { Time(0, 1, 1, 1), Time(0, 1, 1, 500), Time(0, 1, 1, 1000), Time(0, 1, 1, 1500), Time(0, 1, 1, 2000), Time(0, 1, 1, 2500) };
+    static const Time knownDates[6] = { Time(0, 0, 1, 1, 1), Time(0, 0, 1, 1, 500), Time(0, 0, 1, 1, 1000), Time(0, 0, 1, 1, 1500), Time(0, 0, 1, 1, 2000), Time(0, 0, 1, 1, 2500) };
     static const size_t knowDatesWeekDays[6] = { 5, 5, 0, 2, 5, 4 };
 
     Time t;
@@ -76,12 +82,12 @@ size_t Time::getWeekDay() const
     return weekDay % 7;
 }
 
-bool Time::checkLeapYear(unsigned short int year)
+bool Time::checkLeapYear(size_t year)
 {
     return ((year%4==0 && year%100!=0) || year%400==0);
 }
 
-bool Time::validateDate(unsigned char day, unsigned char month, unsigned short int year)
+bool Time::validateDate(size_t day, size_t month, size_t year)
 {
     if (!(1<=month && month<=12)) return false;
 
@@ -94,32 +100,47 @@ bool Time::validateDate(unsigned char day, unsigned char month, unsigned short i
     }
 }
 
-bool Time::validateHour(unsigned char hour)
+bool Time::validateHours(size_t hour)
 {
-    return hour<=23;
+    return (hour<=23);
 }
 
-void Time::validateConstructor(unsigned char hour, unsigned day, unsigned char month, unsigned short int year)
+bool Time::validateMinutes(size_t minutes)
 {
-    if (validateHour(hour) == false) throw "Invalid hour argument!";
+    return (minutes <= 59);
+}
+
+void Time::validateConstructor(size_t hours, size_t minutes, size_t day, size_t month, size_t year)
+{
+    if (validateHours(hours) == false) throw "Invalid hour argument!";
     if (validateDate(day, month, year) == false) throw "Invalid date argument!";
 }
 
 void Time::fitInHourFrame(unsigned char hLow, unsigned char hHigh)
 {
-    if (hLow <= hour && hour <= hHigh) return;
-    if (hour < hLow) hour = hLow;
-    if (hour > hHigh)
+    if (hLow <= hours && hours <= hHigh) return;
+    if (hours < hLow) hours = hLow;
+    if (hours > hHigh)
     {
         nextDay();
-        hour = hLow;
+        hours = hLow;
+    }
+}
+
+void Time::nextMinute()
+{
+    minutes++;
+    if (validateMinutes(minutes) == false)
+    {
+        minutes = 0;
+        nextHour();
     }
 }
 
 void Time::nextHour()
 {
-    hour++;
-    if (validateHour(hour) == false) nextDay();
+    hours++;
+    if (validateHours(hours) == false) nextDay();
 }
 
 void Time::nextDay()
@@ -144,21 +165,29 @@ void Time::nextDay()
     }
 }
 
-Time& Time::operator+=(size_t h)
+Time& Time::operator+=(size_t m)
 {
+    size_t h = m / 60;
     while (h != 0)
     {
         nextHour();
         h--;
     }
 
+    m = m % 60;
+    while (m != 0)
+    {
+        nextMinute();
+        m--;
+    }
+
     return *this;
 }
 
-Time operator+(const Time& lhs, size_t h)
+Time operator+(const Time& lhs, size_t m)
 {
     Time res = lhs;
-    res += h;
+    res += m;
     
     return res;
 }
@@ -168,7 +197,7 @@ bool operator<(const Time& lhs, const Time& rhs)
     if (lhs.year != rhs.year) return lhs.year < rhs.year;
     if (lhs.month != rhs.month) return lhs.month < rhs.month;
     if (lhs.day != rhs.day) return lhs.day < rhs.day;
-    if (lhs.hour != rhs.hour) return lhs.hour < rhs.hour;
+    if (lhs.hours != rhs.hours) return lhs.hours < rhs.hours;
 
     return false;
 }
@@ -178,7 +207,8 @@ bool operator>(const Time& lhs, const Time& rhs)
     if (lhs.year != rhs.year) return lhs.year > rhs.year;
     if (lhs.month != rhs.month) return lhs.month > rhs.month;
     if (lhs.day != rhs.day) return lhs.day > rhs.day;
-    if (lhs.hour != rhs.hour) return lhs.hour > rhs.hour;
+    if (lhs.hours != rhs.hours) return lhs.hours > rhs.hours;
+    if (lhs.minutes != rhs.minutes) return lhs.minutes < rhs.minutes;
 
     return false;
 }
@@ -188,7 +218,8 @@ bool operator<=(const Time& lhs, const Time& rhs)
     if (lhs.year != rhs.year) return lhs.year < rhs.year;
     if (lhs.month != rhs.month) return lhs.month < rhs.month;
     if (lhs.day != rhs.day) return lhs.day < rhs.day;
-    if (lhs.hour != rhs.hour) return lhs.hour < rhs.hour;
+    if (lhs.hours != rhs.hours) return lhs.hours < rhs.hours;
+    if (lhs.minutes != rhs.minutes) return lhs.minutes < rhs.minutes;
 
     return true;
 }
@@ -198,14 +229,15 @@ bool operator>=(const Time& lhs, const Time& rhs)
     if (lhs.year != rhs.year) return lhs.year > rhs.year;
     if (lhs.month != rhs.month) return lhs.month > rhs.month;
     if (lhs.day != rhs.day) return lhs.day > rhs.day;
-    if (lhs.hour != rhs.hour) return lhs.hour > rhs.hour;
+    if (lhs.hours != rhs.hours) return lhs.hours > rhs.hours;
+    if (lhs.minutes != rhs.minutes) return lhs.minutes > rhs.minutes;
 
     return true;
 }
 
 bool operator==(const Time& lhs, const Time& rhs)
 {
-    return (lhs.hour==rhs.hour && lhs.day==rhs.day && lhs.month==rhs.month && lhs.year==rhs.year);
+    return (lhs.minutes==rhs.minutes && lhs.hours == rhs.hours && lhs.day == rhs.day && lhs.month == rhs.month && lhs.year == rhs.year);
 }
 
 bool operator!=(const Time& lhs, const Time& rhs)
@@ -215,6 +247,6 @@ bool operator!=(const Time& lhs, const Time& rhs)
 
 std::ostream& operator<<(std::ostream& os, const Time& t)
 {
-    os << (unsigned short int)t.hour << " " << (unsigned short int)t.day << " " << (unsigned short int)t.month << " " << t.year;
+    os << (unsigned short int)t.hours << ":" << (unsigned short int)t.minutes << ", " << (unsigned short int)t.day << "-" << (unsigned short int)t.month << "-" << t.year;
     return os;
 }

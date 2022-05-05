@@ -399,7 +399,7 @@ void CalendarDatabase::printRangeBusynessWeekDayReport(const Time& l, const Time
 	for (size_t i = 0; i < 7; i++) os << weekdayNames[weekdayInds[i]] << ": " << weekdayBusyness[weekdayInds[i]] << '\n';
 }
 
-bool CalendarDatabase::findFreePlaceInRange(const Time& l, const Time& r, Time& ans, unsigned char duration, unsigned char hLow, unsigned char hHigh) const
+bool CalendarDatabase::findFreePlaceInRange(const Time& l, const Time& r, Time& ans, unsigned short int duration, unsigned char hLow, unsigned char hHigh) const
 {
 	size_t n;
 	Meeting** m;

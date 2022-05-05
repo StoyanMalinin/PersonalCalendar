@@ -1,9 +1,9 @@
 #include "Meeting.h"
 
-Meeting::Meeting(Time _startTime, unsigned char _duration, const String& _title, const String& _description) : startTime(_startTime), duration(_duration), title(_title), description(_description)
+Meeting::Meeting(Time _startTime, unsigned short int _duration, const String& _title, const String& _description) : startTime(_startTime), duration(_duration), title(_title), description(_description)
 {}
 
-Meeting::Meeting(Time _startTime, unsigned char _duration, String && _title, String && _description) : startTime(_startTime), duration(_duration), title(_title), description(_description)
+Meeting::Meeting(Time _startTime, unsigned short int _duration, String && _title, String && _description) : startTime(_startTime), duration(_duration), title(_title), description(_description)
 {}
 
 void Meeting::loadFromBinaryFile(std::fstream & f)

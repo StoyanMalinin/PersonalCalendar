@@ -35,16 +35,16 @@ TEST_SUITE("Meeting tests")
 {
 	TEST_CASE("constructor and intersects function 1")
 	{
-		Meeting m1(Time(14, 19, 11, 2002), 3, String("sreshta s ivan"), String("shte se sreshtam s ivan"));
-		Meeting m2(Time(15, 19, 11, 2002), 2, String("sreshta s gosho"), String("shte se sreshtam s gosho"));
+		Meeting m1(Time(14, 19, 11, 2002), 3*60, String("sreshta s ivan"), String("shte se sreshtam s ivan"));
+		Meeting m2(Time(15, 19, 11, 2002), 2*60, String("sreshta s gosho"), String("shte se sreshtam s gosho"));
 
 		CHECK(m1.intersects(m2) == true);
 	}
 
 	TEST_CASE("constructor and intersects function 2")
 	{
-		Meeting m1(Time(14, 19, 11, 2002), 3, String("sreshta s ivan"), String("shte se sreshtam s ivan"));
-		Meeting m2(Time(17, 19, 11, 2002), 2, String("sreshta s gosho"), String("shte se sreshtam s gosho"));
+		Meeting m1(Time(14, 19, 11, 2002), 3*60, String("sreshta s ivan"), String("shte se sreshtam s ivan"));
+		Meeting m2(Time(17, 19, 11, 2002), 2*60, String("sreshta s gosho"), String("shte se sreshtam s gosho"));
 
 		CHECK(m1.intersects(m2) == false);
 	}

@@ -46,7 +46,7 @@ public:
 	void printStringReport(const String& s, std::ostream& os) const;
 	void printStringReport(const char *s, size_t len, std::ostream& os) const;
 	void printRangeBusynessWeekDayReport(const Time& l, const Time& r, std::ostream& os) const;
-	bool findFreePlaceInRange(const Time& l, const Time& r, Time& ans, unsigned char duration, unsigned char hLow, unsigned char hHigh) const;
+	bool findFreePlaceInRange(const Time& l, const Time& r, Time& ans, unsigned short int duration, unsigned char hLow, unsigned char hHigh) const;
 
 private:
 	void updatePostponedChanges();

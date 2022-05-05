@@ -40,16 +40,16 @@ void test1()
 	CalendarDatabase db("calendar.dat");
 	db.load();
 
-	db.addMeeting(Meeting(Time(12, 22, 4, 2002), 2, String("rd"), String("yoanko 4rd")));
+	db.addMeeting(Meeting(Time(12, 22, 4, 2002), 2*60, String("rd"), String("yoanko 4rd")));
 	db.debugDatabase(std::cout);
 
-	db.addMeeting(Meeting(Time(14, 19, 11, 2002), 2, String("rd"), String("rozhdenik sam malko az")));
+	db.addMeeting(Meeting(Time(14, 19, 11, 2002), 2*60, String("rd"), String("rozhdenik sam malko az")));
 	db.debugDatabase(std::cout);
 
 	db.remMeeting(Time(12, 22, 4, 2002));
 	db.debugDatabase(std::cout);
 
-	db.addMeeting(Meeting(Time(16, 19, 11, 2002), 1, String("after parti"), String("shte se pie mnogo qko")));
+	db.addMeeting(Meeting(Time(16, 19, 11, 2002), 1*60, String("after parti"), String("shte se pie mnogo qko")));
 	db.debugDatabase(std::cout);
 
 	size_t n = 0;
@@ -64,22 +64,22 @@ void test2()
 	CalendarDatabase db("calendar.dat");
 	db.load();
 
-	db.addMeeting(Meeting(Time(12, 22, 4, 2002), 2, String("rd"), String("yoanko 4rd")));
+	db.addMeeting(Meeting(Time(12, 22, 4, 2002), 2*60, String("rd"), String("yoanko 4rd")));
 	db.debugDatabase(std::cout);
 
 	db.remMeeting(Time(12, 22, 4, 2002));
 	db.debugDatabase(std::cout);
 
-	db.addMeeting(Meeting(Time(12, 22, 4, 2002), 2, String("rd"), String("yoanko 4rd")));
+	db.addMeeting(Meeting(Time(12, 22, 4, 2002), 2*60, String("rd"), String("yoanko 4rd")));
 	db.debugDatabase(std::cout);
 
-	Meeting mShega1 = Meeting(Time(1, 1, 4, 2022), 2, String("shega"), String("ibavam sa be"));
-	Meeting mShega2 = Meeting(Time(5, 2, 4, 2022), 2, String("mai ne e shega"), String("ibavam sa be"));
-	Meeting mShega3 = Meeting(Time(11, 22, 4, 2002), 2, String("mai nqma da stane rabota"), String("ne se ibavam"));
+	Meeting mShega1 = Meeting(Time(1, 1, 4, 2022), 2*60, String("shega"), String("ibavam sa be"));
+	Meeting mShega2 = Meeting(Time(5, 2, 4, 2022), 2*60, String("mai ne e shega"), String("ibavam sa be"));
+	Meeting mShega3 = Meeting(Time(11, 22, 4, 2002), 2*60, String("mai nqma da stane rabota"), String("ne se ibavam"));
 	db.addMeeting(mShega1);
 	db.debugDatabase(std::cout);
 
-	db.addMeeting(Meeting(Time(15, 19, 11, 2002), 2, String("rd"), String("stoqn 4rd")));
+	db.addMeeting(Meeting(Time(15, 19, 11, 2002), 2*60, String("rd"), String("stoqn 4rd")));
 	db.debugDatabase(std::cout);
 
 	db.changeMeetings(mShega1, mShega2);
@@ -103,23 +103,23 @@ void test3()
 	CalendarDatabase db("calendar.dat");
 	db.load();
 
-	db.addMeeting(Meeting(Time(10, 28, 4, 2022), 2, "sreshta s maika ti", ""));
+	db.addMeeting(Meeting(Time(10, 28, 4, 2022), 2*60, "sreshta s maika ti", ""));
 	db.debugDatabase(std::cout);
 
-	db.addMeeting(Meeting(Time(15, 28, 4, 2022), 4, "sreshta s tatko ti", ""));
+	db.addMeeting(Meeting(Time(15, 28, 4, 2022), 4*60, "sreshta s tatko ti", ""));
 	db.debugDatabase(std::cout);
 
-	db.addMeeting(Meeting(Time(10, 29, 4, 2022), 4, "otivam da nahranq kotkata", ""));
+	db.addMeeting(Meeting(Time(10, 29, 4, 2022), 4*60, "otivam da nahranq kotkata", ""));
 	db.debugDatabase(std::cout);
 
 	Time ans;
-	db.findFreePlaceInRange(Time(0, 28, 4, 2022), Time(23, 29, 4, 2022), ans, 3, 8, 17);
+	db.findFreePlaceInRange(Time(0, 28, 4, 2022), Time(23, 29, 4, 2022), ans, 3*60, 8, 17);
 	std::cout << ans << '\n';
 }
 
 int main()
 {
-	doctest::Context().run();
+	//doctest::Context().run();
 
 	//test1();
 	//test2();

@@ -6,12 +6,13 @@
 class Time
 {
 private:
-	unsigned char month, day, hour;
+	unsigned char hours, minutes, day, month;
 	unsigned short int year;
 
 public:
 	Time();
-	Time(unsigned char hour, unsigned day, unsigned char month, unsigned short int year);
+	Time(unsigned char hours, unsigned char day, unsigned char month, unsigned short int year);
+	Time(unsigned char hours, unsigned char minutes, unsigned char day, unsigned char month, unsigned short int year);
 
 public:
 	unsigned char getMonth() const;
@@ -22,13 +23,15 @@ public:
 	size_t getWeekDay() const;
 
 public:
-	static bool checkLeapYear(unsigned short int year);
-	static bool validateDate(unsigned char day, unsigned char month, unsigned short int year);
-	static bool validateHour(unsigned char hour);
-	static void validateConstructor(unsigned char hour, unsigned day, unsigned char month, unsigned short int year);
+	static bool checkLeapYear(size_t year);
+	static bool validateDate(size_t day, size_t month, size_t year);
+	static bool validateHours(size_t hour);
+	static bool validateMinutes(size_t minutes);
+	static void validateConstructor(size_t hours, size_t minutes, size_t day, size_t month, size_t year);
 
 	void fitInHourFrame(unsigned char hLow, unsigned char hHigh);
 public:
+	void nextMinute();
 	void nextHour();
 	void nextDay();
 
