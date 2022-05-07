@@ -37,6 +37,7 @@ void UIHandler::printMenu() const
 	std::cout << "6 -> Change appointment" << '\n';
 	std::cout << "7 -> Look for appointment" << '\n';
 	std::cout << "8 -> Find time for appointment" << '\n';
+	std::cout << "9 -> Print business report" << '\n';
 }
 
 int UIHandler::readCommand() const
@@ -46,7 +47,7 @@ int UIHandler::readCommand() const
 		int command;
 		std::cin >> command;
 
-		if (1 <= command && command <= 7) return command;
+		if (1 <= command && command <= 9) return command;
 		std::cout << "This is not a valid command id" << '\n';
 	}
 }
@@ -56,9 +57,14 @@ void UIHandler::executeCommand(int command)
 	try
 	{
 		if (command == 1) { loadCalendarDatabase(false); return; }
-		else if (command == 2) { saveChanges(false); return; }
-		else if (command == 3) { makeAppointment(false); return; }
-		else if (command == 5) { printDailySchedule(false); return; }
+		if (command == 2) { saveChanges(false); return; }
+		if (command == 3) { makeAppointment(false); return; }
+		if (command == 4) { makeAppointment(false); return; }
+		if (command == 5) { printDailySchedule(false); return; }
+		if (command == 6) { changeAppointment(false); return; }
+		if (command == 7) { lookForAppointment(false); return; }
+		if (command == 8) { findTimeForAppointment(false); return; }
+		if (command == 9) { printBusinessReport(false); return; }
 	}
 	catch (const char* s)
 	{
@@ -186,6 +192,171 @@ void UIHandler::makeAppointment(bool silent) const
 	catch (...)
 	{
 		std::cout << "An unknown exception was thrown while making an appointment" << '\n';
+	}
+}
+
+void UIHandler::removeAppointment(bool silent) const
+{
+	if (db == nullptr)
+	{
+		throw std::exception("No database loaded!");
+	}
+
+	try
+	{
+		std::cout << "Enter appointment start time: " << '\n';
+		Time t = readTime();
+		
+		db->remMeeting(t);
+	}
+	catch (std::exception& e)
+	{
+		std::cout << e.what() << '\n';
+	}
+	catch (const char* s)
+	{
+		if(s!=nullptr) std::cout << s << '\n';
+	}
+	catch (...)
+	{
+		std::cout << "An unknown exception was thrown while removing an appointment" << '\n';
+	}
+}
+
+void UIHandler::changeAppointment(bool silent) const
+{
+	if (db == nullptr)
+	{
+		throw std::exception("No database loaded!");
+	}
+
+	try
+	{
+		std::cout << "Enter appointment start time: " << '\n';
+		Time tOld = readTime();
+
+		std::cout << "Enter new appointment start time: " << '\n';
+		Time tNew = readTime();
+
+		db->changeMeetings(tOld, tNew);
+	}
+	catch (std::exception& e)
+	{
+		std::cout << e.what() << '\n';
+	}
+	catch (const char* s)
+	{
+		if (s != nullptr) std::cout << s << '\n';
+	}
+	catch (...)
+	{
+		std::cout << "An unknown exception was thrown while changing an appointment!" << '\n';
+	}
+}
+
+void UIHandler::lookForAppointment(bool silent) const
+{
+	if (db == nullptr)
+	{
+		throw std::exception("No database loaded!");
+	}
+
+	try
+	{
+		String s;
+		std::cout << "Enter search string: "; std::cin >> s;
+
+		db->printStringReport(s, std::cout);
+	}
+	catch (std::exception& e)
+	{
+		std::cout << e.what() << '\n';
+	}
+	catch (const char* s)
+	{
+		if (s != nullptr) std::cout << s << '\n';
+	}
+	catch (...)
+	{
+		std::cout << "An unknown exception was thrown while looking for an appointment!" << '\n';
+	}
+}
+
+void UIHandler::findTimeForAppointment(bool silent) const
+{
+	if (db == nullptr)
+	{
+		throw std::exception("No database loaded!");
+	}
+
+	try
+	{
+		std::cout << "Enter the first day of the week you want to find time in: " << '\n';
+		Time t1 = readDate();
+
+		if (t1.getWeekDay() != 0) throw std::exception("The day must me Monday!");
+		Time t2 = t1 + 7 * 24 * 60;
+		
+		size_t duration;
+		std::cout << "Enter duration: "; std::cin >> duration;
+
+		Time ans;
+		bool res = db->findFreePlaceInRange(t1, t2, ans, duration, 8, 17);
+
+		if (res == false) throw std::exception("No suitable time period found!");
+		else std::cout << ans << '\n';
+	}
+	catch (std::exception& e)
+	{
+		std::cout << e.what() << '\n';
+	}
+	catch (const char* s)
+	{
+		if (s != nullptr) std::cout << s << '\n';
+	}
+	catch (...)
+	{
+		std::cout << "An unknown exception was thrown while finding time for an appointment!" << '\n';
+	}
+}
+
+void UIHandler::printBusinessReport(bool silent) const
+{
+	if (db == nullptr)
+	{
+		throw std::exception("No database loaded!");
+	}
+
+	try
+	{
+		std::cout << "Enter start date: " << '\n';
+		Time startDate = readDate();
+
+		std::cout << "Enter end date: " << '\n';
+		Time endDateInput = readDate();
+		Time endDate = Time(23, 59, endDateInput.getDay(), endDateInput.getMonth(), endDateInput.getYear());
+
+		String filename = "stats-" + String::format(String::toString(startDate.getYear()), 4, '0', false) + "-" +
+									 String::format(String::toString(startDate.getMonth()), 4, '0', false) + "-" +
+									 String::format(String::toString(startDate.getDay()), 4, '0', false);
+
+		std::ofstream f(filename.getData());
+		if (f.is_open() == false) throw std::exception("file could not open!");
+
+		db->printRangeBusynessWeekDayReport(startDate, endDate, f);
+		f.close();
+	}
+	catch (std::exception& e)
+	{
+		std::cout << e.what() << '\n';
+	}
+	catch (const char* s)
+	{
+		if (s != nullptr) std::cout << s << '\n';
+	}
+	catch (...)
+	{
+		std::cout << "An unknown exception was thrown while printing business report!" << '\n';
 	}
 }
 

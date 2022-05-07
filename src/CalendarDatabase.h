@@ -44,6 +44,7 @@ public:
 	void getRangeReport(const Time& l, const Time& r, size_t& n, Meeting**& arr) const;
 	void printRangeReport(const Time& l, const Time& r, std::ostream& os) const;
 	bool changeMeetings(const Meeting& oldMeeting, const Meeting& newMeeting);
+	bool changeMeetings(const Time& oldMeetingTime, const Time& newMeetingTime);
 	void printStringReport(const String& s, std::ostream& os) const;
 	void printStringReport(const char *s, size_t len, std::ostream& os) const;
 	void printRangeBusynessWeekDayReport(const Time& l, const Time& r, std::ostream& os) const;
@@ -53,6 +54,8 @@ private:
 	void updatePostponedChanges();
 	bool checkIfRemoved(const Time& t) const;
 	bool checkIfRemoved(const Meeting& m) const;
+	Meeting* getMeetingbByTime(const Time& t) const;
+	Meeting* readMeetingFromDb(size_t ind) const;
 
 	size_t getFirstAfterDb(const Time& t) const;
 	size_t getFirstAFterPostponed(const Time& t) const;

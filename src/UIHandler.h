@@ -38,6 +38,11 @@ private:
 	void saveChanges(bool silent = false);
 	void printDailySchedule(bool silent = false) const; 
 	void makeAppointment(bool silent = false) const; 
+	void removeAppointment(bool silent = false) const; 
+	void changeAppointment(bool silent = false) const;
+	void lookForAppointment(bool silent = false) const;
+	void findTimeForAppointment(bool silent = false) const;
+	void printBusinessReport(bool silent = false) const;
 
 private:
 	static Time readDate();

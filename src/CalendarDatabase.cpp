@@ -70,6 +70,8 @@ void CalendarDatabase::saveChanges()
 		toAdd[i]->writeToBinaryFile(f);
 		if (f.fail() == true) throw "Error while saving changes to file!";
 	}
+
+	f.flush();
 }
 
 void CalendarDatabase::closeFile()
@@ -343,6 +345,19 @@ bool CalendarDatabase::changeMeetings(const Meeting& oldMeeting, const Meeting& 
 	return false;
 }
 
+bool CalendarDatabase::changeMeetings(const Time& oldMeetingTime, const Time& newMeetingTime)
+{
+	Meeting *oldMeeting = getMeetingbByTime(oldMeetingTime);
+	Meeting* newMeeting = getMeetingbByTime(newMeetingTime);
+	if (oldMeeting == nullptr || newMeeting == nullptr) return false;
+
+	bool res = changeMeetings(*oldMeeting, *newMeeting);
+	delete oldMeeting;
+	delete newMeeting;
+
+	return res;
+}
+
 void CalendarDatabase::printStringReport(const String& s, std::ostream& os) const
 {
 	printStringReport(s.getData(), s.getLen(), os);
@@ -413,7 +428,7 @@ void CalendarDatabase::printRangeBusynessWeekDayReport(const Time& l, const Time
 			if (weekdayBusyness[weekdayInds[j]] > weekdayBusyness[weekdayInds[j + 1]]) std::swap(weekdayInds[j], weekdayInds[j + 1]);
 
 	static const char* weekdayNames[] = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
-	for (size_t i = 0; i < 7; i++) os << weekdayNames[weekdayInds[i]] << ": " << weekdayBusyness[weekdayInds[i]] << '\n';
+	for (size_t i = 0; i < 7; i++) os << weekdayNames[weekdayInds[i]] << ": " << weekdayBusyness[weekdayInds[i]] << " minutes" << '\n';
 }
 
 bool CalendarDatabase::findFreePlaceInRange(const Time& l, const Time& r, Time& ans, unsigned short int duration, unsigned char hLow, unsigned char hHigh) const
@@ -537,6 +552,33 @@ bool CalendarDatabase::checkIfRemoved(const Time& t) const
 bool CalendarDatabase::checkIfRemoved(const Meeting& m) const
 {
 	return checkIfRemoved(m.getStartTime());
+}
+
+Meeting* CalendarDatabase::getMeetingbByTime(const Time& t) const
+{
+	size_t ind = getFirstAFterPostponed(t);
+	if (ind < toAddCnt) return new Meeting(*toAdd[ind]);
+
+	ind = getFirstAfterDb(t);
+	if(ind<meetingCnt) 
+
+	return nullptr;
+}
+
+Meeting* CalendarDatabase::readMeetingFromDb(size_t ind) const
+{
+	if (ind < meetingCnt) return nullptr;
+
+	size_t filePos = f.tellg();
+	f.seekg(meetingPtrs[ind], std::ios::beg);
+
+	Meeting* m;
+	m = (Meeting*)malloc(sizeof(Meeting));
+	m->fixWhenImproperlyAllocated();
+	m->loadFromBinaryFile(f);
+
+	f.seekg(filePos, std::ios::beg);
+	return m;
 }
 
 size_t CalendarDatabase::getFirstAfterDb(const Time& t) const
