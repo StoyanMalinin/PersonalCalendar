@@ -301,9 +301,7 @@ void CalendarDatabase::getRangeReport(const Time& l, const Time& r, size_t& n, M
 			postponedPtr++;
 		}
 		
-		arr[arrInd] = (Meeting*)malloc(sizeof(Meeting));
-		arr[arrInd]->fixWhenImproperlyAllocated();
-		arr[arrInd]->loadFromBinaryFile(f);
+		arr[arrInd] = readMeetingFromDb(dbPtr);
 		arrInd++;
 	}
 	while (postponedPtr < toAddCnt)
@@ -373,10 +371,7 @@ void CalendarDatabase::printStringReport(const char* s, size_t len, std::ostream
 	size_t* pref = String::getPrefixFunction(s, len);
 	for (size_t i = 0; i < meetingCnt; i++)
 	{
-		Meeting* m;
-		m = (Meeting*)malloc(sizeof(Meeting));
-		m->fixWhenImproperlyAllocated();
-		m->loadFromBinaryFile(f);
+		Meeting* m = readMeetingFromDb(i);
 
 		if (checkIfRemoved(*m) == false && (m->getTitle().findSubstr(s, len, pref) == true || m->getDescription().findSubstr(s, len, pref) == true))
 		{
@@ -563,7 +558,7 @@ Meeting* CalendarDatabase::getMeetingbByTime(const Time& t) const
 	if (ind < toAddCnt) return new Meeting(*toAdd[ind]);
 
 	ind = getFirstAfterDb(t);
-	if(ind<meetingCnt) 
+	if (ind < meetingCnt) return readMeetingFromDb(ind);
 
 	return nullptr;
 }
@@ -723,10 +718,7 @@ void CalendarDatabase::debugDatabase(std::ostream& os) const
 
 	for (size_t i = 0; i < currMeetingCnt; i++)
 	{
-		Meeting *m;
-		m = (Meeting*)malloc(sizeof(Meeting));
-		m->fixWhenImproperlyAllocated();
-		m->loadFromBinaryFile(f);
+		Meeting *m = readMeetingFromDb(i);
 
 		os << *m << '\n';
 		delete m;

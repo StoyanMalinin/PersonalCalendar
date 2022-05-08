@@ -28,7 +28,9 @@ private:
 
 public:
 	CalendarDatabase(const char* fileName);
+	CalendarDatabase(CalendarDatabase&& other) = delete;
 	CalendarDatabase(const CalendarDatabase& other) = delete;
+	CalendarDatabase& operator =(CalendarDatabase&& other) = delete;
 	CalendarDatabase& operator =(const CalendarDatabase& other) = delete;
 	~CalendarDatabase();
 		
