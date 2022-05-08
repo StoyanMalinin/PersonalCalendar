@@ -1,5 +1,7 @@
 #include "CalendarDatabase.h"
 
+#include <exception>
+
 CalendarDatabase::CalendarDatabase(const char* fileName) : f(fileName, std::ios::in | std::ios::out | std::ios::binary)
 {
 	if (fileName == nullptr)
@@ -54,21 +56,21 @@ void CalendarDatabase::saveChanges()
 	f.seekg(postponedStartPtr, std::ios::beg);
 	
 	f.write((const char*)&toRemCnt, sizeof(size_t));
-	if (f.fail() == true) throw "Error while saving changes to file!";
+	if (f.fail() == true) throw std::exception("Error while saving changes to file!");
 	
 	for (size_t i = 0; i < toRemCnt; i++)
 	{
 		f.write((const char*)toRem[i], sizeof(Time));
-		if (f.fail() == true) throw "Error while saving changes to file!";
+		if (f.fail() == true) throw std::exception("Error while saving changes to file!");
 	}
 	
 	f.write((const char*)&toAddCnt, sizeof(size_t));
-	if (f.fail() == true) throw "Error while saving changes to file!";
+	if (f.fail() == true) throw std::exception("Error while saving changes to file!");
 	
 	for (size_t i = 0; i < toAddCnt; i++)
 	{
 		toAdd[i]->writeToBinaryFile(f);
-		if (f.fail() == true) throw "Error while saving changes to file!";
+		if (f.fail() == true) throw std::exception("Error while saving changes to file!");
 	}
 
 	f.flush();
@@ -97,8 +99,9 @@ void CalendarDatabase::load()
 		f.write((const char*)&zero, sizeof(size_t));
 		this->postponedStartPtr = sizeof(size_t);
 	}
+
 	if (f.fail() == true)
-		throw "File is corrupted!";
+		throw std::exception("File is corrupted!");
 	if (getBinaryFileLen(f) == 0)
 		return;
 
@@ -106,7 +109,7 @@ void CalendarDatabase::load()
 	f.seekg(0);
 
 	f.read((char*)&meetingCnt, sizeof(size_t));
-	if (f.eof() == true) throw "Invalid file format!";
+	if (f.eof() == true) throw std::exception("Invalid file format!");
 	
 	meetingPtrs = new size_t[meetingCnt];
 	for (size_t i = 0; i < meetingCnt; i++)
@@ -114,26 +117,26 @@ void CalendarDatabase::load()
 		meetingPtrs[i] = f.tellg();
 		Meeting::skipInBinaryFile(f);
 
-		if (f.eof() == true) throw "Invalid file format!";
+		if (f.eof() == true) throw std::exception("Invalid file format!");
 	}
 
 	postponedStartPtr = f.tellg();
 	
 	f.read((char*)&toRemCnt, sizeof(size_t));
-	if (f.eof() == true) throw "Invalid file format!";
-	if (toRemCnt > MAX_POSPONED) throw "Invalid file format!";
+	if (f.eof() == true) throw std::exception("Invalid file format!");
+	if (toRemCnt > MAX_POSPONED) throw std::exception("Invalid file format!");
 
 	for (size_t i = 0; i < toRemCnt; i++)
 	{
 		toRem[i] = (Time*)malloc(sizeof(Time));
 		f.read((char*)toRem[i], sizeof(Time));
 
-		if (f.eof() == true) throw "Invalid file format!";
+		if (f.eof() == true) throw std::exception("Invalid file format!");
 	}
 	
 	f.read((char*)&toAddCnt, sizeof(size_t));
-	if (f.eof() == true) throw "Invalid file format!";
-	if (toAddCnt > MAX_POSPONED) throw "Invalid file format!";
+	if (f.eof() == true) throw std::exception("Invalid file format!");
+	if (toAddCnt > MAX_POSPONED) throw std::exception("Invalid file format!");
 
 	for (size_t i = 0; i < toAddCnt; i++)
 	{
@@ -141,7 +144,7 @@ void CalendarDatabase::load()
 		toAdd[i]->fixWhenImproperlyAllocated();
 		toAdd[i]->loadFromBinaryFile(f);
 		
-		if (f.eof() == true) throw "Invalid file format!";
+		if (f.eof() == true) throw std::exception("Invalid file format!");
 	}
 }
 

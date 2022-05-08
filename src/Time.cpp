@@ -116,9 +116,9 @@ bool Time::validateMinutes(size_t minutes)
 
 void Time::validateConstructor(size_t hours, size_t minutes, size_t day, size_t month, size_t year)
 {
-    if (validateHours(hours) == false) throw "Invalid hours argument!";
-    if (validateMinutes(minutes) == false) throw "Invalid minutes argument!";
-    if (validateDate(day, month, year) == false) throw "Invalid date argument!";
+    if (validateHours(hours) == false) throw std::logic_error("Invalid hours argument!");
+    if (validateMinutes(minutes) == false) throw std::logic_error("Invalid minutes argument!");
+    if (validateDate(day, month, year) == false) throw std::logic_error("Invalid date argument!");
 }
 
 void Time::fitInHourFrame(unsigned char hLow, unsigned char hHigh)

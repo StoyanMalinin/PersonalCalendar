@@ -68,7 +68,7 @@ void UIHandler::executeCommand(int command)
 	}
 	catch (const char* s)
 	{
-		std::cout << "An exception was throw during the exectution of the command:" << '\n';
+		std::cout << "An exception was thrown during the exectution of the command:" << '\n';
 		if(s!=nullptr) std::cout << s << '\n';
 	}
 	catch (...)
@@ -96,16 +96,22 @@ void UIHandler::loadCalendarDatabase(bool silent)
 	{
 		db->load();
 	}
-	catch (const char* s)
+	catch (std::logic_error& e)
 	{
-		std::cout << "An exception was thrown while loading database:" << '\n';
-		if (s != nullptr) std::cout << s << '\n';
-		
-		return;
+		std::cout << e.what() << '\n';
+	}
+	catch (std::exception& e)
+	{
+		std::cout << "A bad erorr has occured: " << '\n';
+		std::cout << e.what() << '\n';
+	
+		currState = States::ERROR;
 	}
 	catch (...)
 	{
 		std::cout << "An unknown exception was thrown" << '\n';
+		currState = States::ERROR;
+
 		return;
 	}
 
@@ -114,30 +120,36 @@ void UIHandler::loadCalendarDatabase(bool silent)
 
 void UIHandler::saveChanges(bool silent)
 {
-	if (db == nullptr) throw "No database to save changes of!";
+	if (db == nullptr) throw std::logic_error("No database to save changes of!");
 	
 	if(silent==false) std::cout << "Saving changes..." << '\n';
 	try
 	{
 		db->saveChanges();
 	}
-	catch (const char* s)
+	catch (std::logic_error& e)
 	{
-		std::cout << "An exception was thrown while saving changes:" << '\n';
-		if(s!=nullptr) std::cout << s << '\n';
-	
-		return;
+		std::cout << e.what() << '\n';
+	}
+	catch (std::exception& e)
+	{
+		std::cout << "A bad erorr has occured: " << '\n';
+		std::cout << e.what() << '\n';
+
+		currState = States::ERROR;
 	}
 	catch (...)
 	{
-		std::cout << "an unknown exception was thrown while saving changes!" << '\n';
+		std::cout << "An unknown exception was thrown" << '\n';
+		currState = States::ERROR;
+
 		return;
 	}
 
 	if (silent == false) std::cout << "Changes successfuly saved" << '\n';
 }
 
-void UIHandler::printDailySchedule(bool silent) const
+void UIHandler::printDailySchedule(bool silent)
 {
 	if (db == nullptr)
 	{
@@ -150,22 +162,27 @@ void UIHandler::printDailySchedule(bool silent) const
 		Time t = readDate();
 		db->printRangeReport(Time(0, t.getDay(), t.getMonth(), t.getYear()), Time(23, 59, t.getDay(), t.getMonth(), t.getYear()), std::cout);
 	}
-	catch (const std::exception& e)
+	catch (std::logic_error& e)
 	{
 		std::cout << e.what() << '\n';
 	}
-	catch (const char* s)
+	catch (std::exception& e)
 	{
-		std::cout << "An exception was thrown while printing daily report:" << '\n';
-		if (s != nullptr) std::cout << s << '\n';
+		std::cout << "A bad erorr has occured: " << '\n';
+		std::cout << e.what() << '\n';
+
+		currState = States::ERROR;
 	}
 	catch (...)
 	{
-		std::cout << "An unknown exception was throw while printing daily schedule" << '\n';
+		std::cout << "An unknown exception was thrown" << '\n';
+		currState = States::ERROR;
+
+		return;
 	}
 }
 
-void UIHandler::makeAppointment(bool silent) const
+void UIHandler::makeAppointment(bool silent)
 {
 	try
 	{
@@ -181,25 +198,31 @@ void UIHandler::makeAppointment(bool silent) const
 
 		db->addMeeting(Meeting(startTime, duration, title, description));
 	}
-	catch (std::exception& e)
+	catch (std::logic_error& e)
 	{
 		std::cout << e.what() << '\n';
 	}
-	catch (const char* s)
+	catch (std::exception& e)
 	{
-		std::cout << s << '\n';
+		std::cout << "A bad erorr has occured: " << '\n';
+		std::cout << e.what() << '\n';
+
+		currState = States::ERROR;
 	}
 	catch (...)
 	{
-		std::cout << "An unknown exception was thrown while making an appointment" << '\n';
+		std::cout << "An unknown exception was thrown" << '\n';
+		currState = States::ERROR;
+
+		return;
 	}
 }
 
-void UIHandler::removeAppointment(bool silent) const
+void UIHandler::removeAppointment(bool silent)
 {
 	if (db == nullptr)
 	{
-		throw std::exception("No database loaded!");
+		throw std::logic_error("No database loaded!");
 	}
 
 	try
@@ -209,25 +232,31 @@ void UIHandler::removeAppointment(bool silent) const
 		
 		db->remMeeting(t);
 	}
-	catch (std::exception& e)
+	catch (std::logic_error& e)
 	{
 		std::cout << e.what() << '\n';
 	}
-	catch (const char* s)
+	catch (std::exception& e)
 	{
-		if(s!=nullptr) std::cout << s << '\n';
+		std::cout << "A bad erorr has occured: " << '\n';
+		std::cout << e.what() << '\n';
+
+		currState = States::ERROR;
 	}
 	catch (...)
 	{
-		std::cout << "An unknown exception was thrown while removing an appointment" << '\n';
+		std::cout << "An unknown exception was thrown" << '\n';
+		currState = States::ERROR;
+
+		return;
 	}
 }
 
-void UIHandler::changeAppointment(bool silent) const
+void UIHandler::changeAppointment(bool silent)
 {
 	if (db == nullptr)
 	{
-		throw std::exception("No database loaded!");
+		throw std::logic_error("No database loaded!");
 	}
 
 	try
@@ -240,25 +269,31 @@ void UIHandler::changeAppointment(bool silent) const
 
 		db->changeMeetings(tOld, tNew);
 	}
-	catch (std::exception& e)
+	catch (std::logic_error& e)
 	{
 		std::cout << e.what() << '\n';
 	}
-	catch (const char* s)
+	catch (std::exception& e)
 	{
-		if (s != nullptr) std::cout << s << '\n';
+		std::cout << "A bad erorr has occured: " << '\n';
+		std::cout << e.what() << '\n';
+
+		currState = States::ERROR;
 	}
 	catch (...)
 	{
-		std::cout << "An unknown exception was thrown while changing an appointment!" << '\n';
+		std::cout << "An unknown exception was thrown" << '\n';
+		currState = States::ERROR;
+
+		return;
 	}
 }
 
-void UIHandler::lookForAppointment(bool silent) const
+void UIHandler::lookForAppointment(bool silent)
 {
 	if (db == nullptr)
 	{
-		throw std::exception("No database loaded!");
+		throw std::logic_error("No database loaded!");
 	}
 
 	try
@@ -268,25 +303,31 @@ void UIHandler::lookForAppointment(bool silent) const
 
 		db->printStringReport(s, std::cout);
 	}
-	catch (std::exception& e)
+	catch (std::logic_error& e)
 	{
 		std::cout << e.what() << '\n';
 	}
-	catch (const char* s)
+	catch (std::exception& e)
 	{
-		if (s != nullptr) std::cout << s << '\n';
+		std::cout << "A bad erorr has occured: " << '\n';
+		std::cout << e.what() << '\n';
+
+		currState = States::ERROR;
 	}
 	catch (...)
 	{
-		std::cout << "An unknown exception was thrown while looking for an appointment!" << '\n';
+		std::cout << "An unknown exception was thrown" << '\n';
+		currState = States::ERROR;
+
+		return;
 	}
 }
 
-void UIHandler::findTimeForAppointment(bool silent) const
+void UIHandler::findTimeForAppointment(bool silent)
 {
 	if (db == nullptr)
 	{
-		throw std::exception("No database loaded!");
+		throw std::logic_error("No database loaded!");
 	}
 
 	try
@@ -294,7 +335,7 @@ void UIHandler::findTimeForAppointment(bool silent) const
 		std::cout << "Enter the first day of the week you want to find time in: " << '\n';
 		Time t1 = readDate();
 
-		if (t1.getWeekDay() != 0) throw std::exception("The day must me Monday!");
+		if (t1.getWeekDay() != 0) throw std::logic_error("The day must me Monday!");
 		Time t2 = t1 + 7 * 24 * 60;
 		
 		size_t duration;
@@ -303,28 +344,34 @@ void UIHandler::findTimeForAppointment(bool silent) const
 		Time ans;
 		bool res = db->findFreePlaceInRange(t1, t2, ans, duration, 8, 17);
 
-		if (res == false) throw std::exception("No suitable time period found!");
+		if (res == false) throw std::logic_error("No suitable time period found!");
 		else std::cout << ans << '\n';
 	}
-	catch (std::exception& e)
+	catch (std::logic_error& e)
 	{
 		std::cout << e.what() << '\n';
 	}
-	catch (const char* s)
+	catch (std::exception& e)
 	{
-		if (s != nullptr) std::cout << s << '\n';
+		std::cout << "A bad erorr has occured: " << '\n';
+		std::cout << e.what() << '\n';
+
+		currState = States::ERROR;
 	}
 	catch (...)
 	{
-		std::cout << "An unknown exception was thrown while finding time for an appointment!" << '\n';
+		std::cout << "An unknown exception was thrown" << '\n';
+		currState = States::ERROR;
+
+		return;
 	}
 }
 
-void UIHandler::printBusinessReport(bool silent) const
+void UIHandler::printBusinessReport(bool silent)
 {
 	if (db == nullptr)
 	{
-		throw std::exception("No database loaded!");
+		throw std::logic_error("No database loaded!");
 	}
 
 	try
@@ -341,22 +388,28 @@ void UIHandler::printBusinessReport(bool silent) const
 									 String::format(String::toString(startDate.getDay()), 4, '0', false);
 
 		std::ofstream f(filename.getData());
-		if (f.is_open() == false) throw std::exception("file could not open!");
+		if (f.is_open() == false) throw std::logic_error("file could not open!");
 
 		db->printRangeBusynessWeekDayReport(startDate, endDate, f);
 		f.close();
 	}
-	catch (std::exception& e)
+	catch (std::logic_error& e)
 	{
 		std::cout << e.what() << '\n';
 	}
-	catch (const char* s)
+	catch (std::exception& e)
 	{
-		if (s != nullptr) std::cout << s << '\n';
+		std::cout << "A bad erorr has occured: " << '\n';
+		std::cout << e.what() << '\n';
+
+		currState = States::ERROR;
 	}
 	catch (...)
 	{
-		std::cout << "An unknown exception was thrown while printing business report!" << '\n';
+		std::cout << "An unknown exception was thrown" << '\n';
+		currState = States::ERROR;
+
+		return;
 	}
 }
 
@@ -367,7 +420,7 @@ Time UIHandler::readDate()
 	std::cout << "momth: "; std::cin >> month;
 	std::cout << "year: "; std::cin >> year;
 
-	if (Time::validateDate(day, month, year) == false) throw std::exception("Invalid date entered!");
+	if (Time::validateDate(day, month, year) == false) throw std::logic_error("Invalid date entered!");
 	return Time(day, month, year);
 }
 

@@ -36,13 +36,13 @@ private:
 private:
 	void loadCalendarDatabase(bool silent = false);
 	void saveChanges(bool silent = false);
-	void printDailySchedule(bool silent = false) const; 
-	void makeAppointment(bool silent = false) const; 
-	void removeAppointment(bool silent = false) const; 
-	void changeAppointment(bool silent = false) const;
-	void lookForAppointment(bool silent = false) const;
-	void findTimeForAppointment(bool silent = false) const;
-	void printBusinessReport(bool silent = false) const;
+	void printDailySchedule(bool silent = false); 
+	void makeAppointment(bool silent = false); 
+	void removeAppointment(bool silent = false); 
+	void changeAppointment(bool silent = false);
+	void lookForAppointment(bool silent = false);
+	void findTimeForAppointment(bool silent = false);
+	void printBusinessReport(bool silent = false);
 
 private:
 	static Time readDate();
