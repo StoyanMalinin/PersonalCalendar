@@ -214,6 +214,7 @@ bool operator<(const Time& lhs, const Time& rhs)
     if (lhs.month != rhs.month) return lhs.month < rhs.month;
     if (lhs.day != rhs.day) return lhs.day < rhs.day;
     if (lhs.hours != rhs.hours) return lhs.hours < rhs.hours;
+    if (lhs.minutes != rhs.minutes) return lhs.minutes < rhs.minutes;
 
     return false;
 }
@@ -224,7 +225,7 @@ bool operator>(const Time& lhs, const Time& rhs)
     if (lhs.month != rhs.month) return lhs.month > rhs.month;
     if (lhs.day != rhs.day) return lhs.day > rhs.day;
     if (lhs.hours != rhs.hours) return lhs.hours > rhs.hours;
-    if (lhs.minutes != rhs.minutes) return lhs.minutes < rhs.minutes;
+    if (lhs.minutes != rhs.minutes) return lhs.minutes > rhs.minutes;
 
     return false;
 }

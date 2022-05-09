@@ -63,6 +63,7 @@ public:
 	friend bool operator <=(const String& lhs, const String& rhs);
 	friend bool operator >=(const String& lhs, const String& rhs);
 	friend bool operator ==(const String& lhs, const String& rhs);
+	friend bool operator !=(const String& lhs, const String& rhs);
 	
 	void swap(String& other);
 	static String toString(size_t num);
