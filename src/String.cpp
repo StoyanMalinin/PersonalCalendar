@@ -231,19 +231,49 @@ String operator+(const String& s, char c)
 	return ans;
 }
 
+void getline(std::istream& is, String& s)
+{
+	s = String();
+	
+	char c;
+	while (is)
+	{
+		c = is.peek();
+		if (c == '\n')
+		{
+			break;
+		}
+
+		is.get(c);
+		s += c;
+	}
+}
+
 std::istream& operator >>(std::istream& is, String& s)
 {
-	char buff[1000];
-	is >> buff;
+	s = String();
+	
+	char c;
+	while (is)
+	{
+		is.get(c);
+		if (isspace(c) == 0)
+		{
+			s += c;
+			break;
+		}
+	}
+	while (is)
+	{
+		c = is.peek();
+		if (isspace(c) != 0)
+		{
+			break;
+		}
 
-	s.deleteDynamic();
-
-	s.len = strlen(buff);
-	s.cap = String::MIN_CAP;
-	while (String::checkTooSmall(s.len, s.cap) == true) s.cap *= 2;
-
-	s.data = new char[s.cap];
-	strcpy(s.data, buff);
+		is.get(c);
+		s += c;
+	}
 
 	return is;
 }

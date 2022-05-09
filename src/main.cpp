@@ -120,29 +120,16 @@ void test3()
 #include "CalendarDbFileManager.h"
 #include "UIHandler.h"
 
+#include <string>
+
 int main()
 {
 	//doctest::Context().run();
 
-	//UIHandler uih;
-	//uih.run();
+	UIHandler uih;
+	uih.run();
 
 	//test1();
 	//test2();
 	//test3();
-
-	//prepare();
-	//
-	//CalendarDatabase db("calendar.dat");
-	//try
-	//{
-	//	db.load();
-	//}
-	//catch (...)
-	//{
-	//	std::cerr << "koftii" << '\n';
-	//}
-	//db.debugDatabase(std::cout);
-	//
-	//db.remMeeting(Meeting(Time(12, 19, 6, 2019), 2, String("gei"), String("pedal")));
 }

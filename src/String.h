@@ -54,6 +54,7 @@ public:
 	friend String operator +(char c, const String& s);
 	friend String operator +(const String& s, char c);
 	
+	friend void getline(std::istream& is, String& s);
 	friend std::istream& operator >>(std::istream& is, String& s);
 	friend std::ostream& operator <<(std::ostream& os, const String& s);
 

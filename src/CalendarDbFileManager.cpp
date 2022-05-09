@@ -25,7 +25,7 @@ const Meeting* CalendarDbFileManager::getToAddAt(size_t ind) const
 	return toAdd[ind];
 }
 
-CalendarDbFileManager::CalendarDbFileManager(const char* fileName)
+CalendarDbFileManager::CalendarDbFileManager(const char* fileName) : f(fileName, std::ios::in | std::ios::out | std::ios::binary)
 {
 	if (fileName == nullptr)
 	{
@@ -48,6 +48,8 @@ CalendarDbFileManager::CalendarDbFileManager(const char* fileName)
 		toAdd[i] = nullptr;
 		toRem[i] = nullptr;
 	}
+
+	this->isFileClosed = false;
 }
 
 CalendarDbFileManager::~CalendarDbFileManager()
@@ -57,9 +59,9 @@ CalendarDbFileManager::~CalendarDbFileManager()
 		saveChanges();
 		closeFile();
 	}
-	catch (const char* s)
+	catch (std::exception& e)
 	{
-		std::cerr << s << '\n';
+		std::cerr << e.what() << '\n';
 		std::cerr << "Exception was thrown during desctruction of CalendarDatabase" << '\n';
 		std::cerr << "The object will not be properly destructed and some resources may be leaked" << '\n';
 	}
@@ -81,6 +83,9 @@ CalendarDbFileManager::~CalendarDbFileManager()
 
 void CalendarDbFileManager::saveChanges()
 {
+	if (isFileClosed == true) return;
+
+	f.flush();
 	f.seekg(postponedStartPtr, std::ios::beg);
 
 	f.write((const char*)&toRemCnt, sizeof(size_t));
@@ -106,11 +111,14 @@ void CalendarDbFileManager::saveChanges()
 
 void CalendarDbFileManager::closeFile()
 {
+	isFileClosed = true;
 	f.close();
 }
 
 void CalendarDbFileManager::load()
 {
+	isFileClosed = false;
+
 	if (f.is_open() == false)
 	{
 		f.clear();
@@ -229,6 +237,8 @@ void CalendarDbFileManager::updatePostponedChanges()
 	size_t zero = 0;
 	f.write((const char*)&zero, sizeof(size_t));
 	f.write((const char*)&zero, sizeof(size_t));
+
+	f.flush();
 }
 
 void CalendarDbFileManager::remMeeting(const Time& t)

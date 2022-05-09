@@ -59,7 +59,7 @@ void UIHandler::executeCommand(int command)
 		if (command == 1) { loadCalendarDatabase(false); return; }
 		if (command == 2) { saveChanges(false); return; }
 		if (command == 3) { makeAppointment(false); return; }
-		if (command == 4) { makeAppointment(false); return; }
+		if (command == 4) { removeAppointment(false); return; }
 		if (command == 5) { printDailySchedule(false); return; }
 		if (command == 6) { changeAppointment(false); return; }
 		if (command == 7) { lookForAppointment(false); return; }
@@ -81,11 +81,33 @@ void UIHandler::loadCalendarDatabase(bool silent)
 {
 	if (db != nullptr)
 	{
-		saveChanges();
+		try
+		{
+			saveChanges();
+			db->closeFile();
+		}
+		catch (std::logic_error& e)
+		{
+			std::cout << e.what() << '\n';
+		}
+		catch (std::exception& e)
+		{
+			std::cout << "A bad erorr has occured: " << '\n';
+			std::cout << e.what() << '\n';
+
+			currState = States::ERROR;
+		}
+		catch (...)
+		{
+			std::cout << "An unknown exception was thrown" << '\n';
+			currState = States::ERROR;
+
+			return;
+		}
 	}
 
 	String s;
-	std::cout << "Database name: "; std::cin >> s;
+	std::cout << "Database name: "; std::cin.ignore(); getline(std::cin, s);
 
 	delete db;
 
@@ -193,8 +215,8 @@ void UIHandler::makeAppointment(bool silent)
 		std::cout << "Enter duration (in minutes): ";std::cin >> duration;
 
 		String title, description;
-		std::cout << "Enter title: "; std::cin >> title;
-		std::cout << "Enter description: "; std::cin >> description;
+		std::cout << "Enter title: "; std::cin.ignore(); getline(std::cin, title);
+		std::cout << "Enter description: "; std::cin.ignore(); getline(std::cin, description);
 
 		db->addMeeting(Meeting(startTime, duration, title, description));
 	}

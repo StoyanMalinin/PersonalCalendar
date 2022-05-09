@@ -11,6 +11,7 @@ class CalendarDbFileManager
 private:
 	static const size_t MAX_POSPONED = 3;
 private:
+	bool isFileClosed;
 	mutable std::fstream f;
 	char* fileName, * tmpBuffFileName;
 
