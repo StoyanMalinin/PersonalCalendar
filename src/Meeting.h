@@ -23,7 +23,7 @@ public:
 
 public:
 	const Time& getStartTime() const;
-	unsigned char getDuration() const;
+	unsigned short int getDuration() const;
 	const String& getTitle() const;
 	const String& getDescription() const;
 	Time getEndTime() const;

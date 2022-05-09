@@ -1,5 +1,30 @@
 #include "CalendarDbFileManager.h"
 
+size_t CalendarDbFileManager::getMeetingCnt() const
+{
+	return meetingCnt;
+}
+
+size_t CalendarDbFileManager::getToRemCnt() const
+{
+	return toRemCnt;
+}
+
+size_t CalendarDbFileManager::getToAddCnt() const
+{
+	return toAddCnt;
+}
+
+const Time* CalendarDbFileManager::getToRemAt(size_t ind) const
+{
+	return toRem[ind];
+}
+
+const Meeting* CalendarDbFileManager::getToAddAt(size_t ind) const
+{
+	return toAdd[ind];
+}
+
 CalendarDbFileManager::CalendarDbFileManager(const char* fileName)
 {
 	if (fileName == nullptr)
@@ -36,6 +61,11 @@ CalendarDbFileManager::~CalendarDbFileManager()
 	{
 		std::cerr << s << '\n';
 		std::cerr << "Exception was thrown during desctruction of CalendarDatabase" << '\n';
+		std::cerr << "The object will not be properly destructed and some resources may be leaked" << '\n';
+	}
+	catch (...)
+	{
+		std::cerr << "Unknown exception was thrown during desctruction of CalendarDatabase" << '\n';
 		std::cerr << "The object will not be properly destructed and some resources may be leaked" << '\n';
 	}
 
@@ -201,6 +231,112 @@ void CalendarDbFileManager::updatePostponedChanges()
 	f.write((const char*)&zero, sizeof(size_t));
 }
 
+void CalendarDbFileManager::remMeeting(const Time& t)
+{
+	toRem[toRemCnt] = new Time(t);
+	toRemCnt++;
+
+	for (size_t i = toRemCnt - 1; i >= 1; i--)
+	{
+		if (*toRem[i] < *toRem[i - 1]) std::swap(toRem[i], toRem[i - 1]);
+		else break;
+	}
+
+	if (toRemCnt + toAddCnt >= MAX_POSPONED)
+	{
+		updatePostponedChanges();
+
+		delete[] meetingPtrs;
+		for (size_t i = 0; i < toRemCnt; i++)
+			delete toRem[i];
+		for (size_t i = 0; i < toAddCnt; i++)
+			delete toAdd[i];
+		load();
+	}
+}
+
+void CalendarDbFileManager::addMeeting(const Meeting& m)
+{
+	for (size_t i = 0; i < toRemCnt; i++)
+	{
+		if (*toRem[i] == m.getStartTime())
+		{
+			delete toRem[i];
+			toRem[i] = nullptr;
+
+			for (size_t j = i; j + 1 < toRemCnt; j++) std::swap(toRem[j], toRem[j + 1]);
+			toRemCnt--;
+
+			return;
+		}
+	}
+
+	for (size_t i = 0; i < toAddCnt; i++)
+		if (*toAdd[i] == m)  return;
+
+	toAdd[toAddCnt] = new Meeting(m);
+	toAddCnt++;
+
+	for (size_t i = toAddCnt - 1; i >= 1; i--)
+	{
+		if (*toAdd[i] < *toAdd[i - 1]) std::swap(toAdd[i], toAdd[i - 1]);
+		else break;
+	}
+
+	if (toRemCnt + toAddCnt >= MAX_POSPONED)
+	{
+		updatePostponedChanges();
+
+		delete[] meetingPtrs;
+		for (size_t i = 0; i < toRemCnt; i++)
+			delete toRem[i];
+		for (size_t i = 0; i < toAddCnt; i++)
+			delete toAdd[i];
+		load();
+	}
+}
+
+void CalendarDbFileManager::addMeeting(Meeting&& m)
+{
+	for (size_t i = 0; i < toRemCnt; i++)
+	{
+		if (*toRem[i] == m.getStartTime())
+		{
+			delete toRem[i];
+			toRem[i] = nullptr;
+
+			for (size_t j = i; j + 1 < toRemCnt; j++) std::swap(toRem[j], toRem[j + 1]);
+			toRemCnt--;
+
+			return;
+		}
+	}
+
+	for (size_t i = 0; i < toAddCnt; i++)
+		if (*toAdd[i] == m)  return;
+
+	toAdd[toAddCnt] = new Meeting(m);
+	toAddCnt++;
+
+	for (size_t i = toAddCnt - 1; i >= 1; i--)
+	{
+		if (*toAdd[i] < *toAdd[i - 1]) std::swap(toAdd[i], toAdd[i - 1]);
+		else break;
+	}
+
+	if (toRemCnt + toAddCnt >= MAX_POSPONED)
+	{
+		updatePostponedChanges();
+
+		delete[] meetingPtrs;
+		for (size_t i = 0; i < toRemCnt; i++)
+			delete toRem[i];
+		for (size_t i = 0; i < toAddCnt; i++)
+			delete toAdd[i];
+		load();
+	}
+}
+
 size_t CalendarDbFileManager::getBinaryFileLen(std::fstream& f)
 {
 	if (f.is_open() == false) return 0;
@@ -352,7 +488,7 @@ Meeting* CalendarDbFileManager::getMeetingbByTime(const Time& t) const
 
 Meeting* CalendarDbFileManager::readMeetingFromDb(size_t ind) const
 {
-	if (ind < meetingCnt) return nullptr;
+	if (ind >= meetingCnt) return nullptr;
 
 	size_t filePos = f.tellg();
 	f.seekg(meetingPtrs[ind], std::ios::beg);
@@ -364,4 +500,28 @@ Meeting* CalendarDbFileManager::readMeetingFromDb(size_t ind) const
 
 	f.seekg(filePos, std::ios::beg);
 	return m;
+}
+
+Time CalendarDbFileManager::getStartTimeByMeetingInd(size_t ind) const
+{
+	if (ind >= meetingCnt) throw std::logic_error("Meeting ind is out of bounds!");
+	size_t filePos = f.tellg();
+
+	f.seekg(meetingPtrs[ind], std::ios::beg);
+	Time res = Meeting::getEndTimeFromBinaryFile(f);
+
+	f.seekg(filePos, std::ios::beg);
+	return res;
+}
+
+size_t CalendarDbFileManager::getDurationFromMeetingInd(size_t ind) const
+{
+	if (ind >= meetingCnt) throw std::logic_error("Index is out of bounds!");
+
+	size_t filePos = f.tellg();
+	f.seekg(meetingPtrs[ind], std::ios::beg);
+	size_t res = Meeting::getDurationFromBinaryFile(f);
+
+	f.seekg(filePos, std::ios::beg);
+	return res;
 }

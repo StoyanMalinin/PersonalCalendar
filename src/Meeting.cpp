@@ -11,7 +11,7 @@ void Meeting::loadFromBinaryFile(std::fstream & f)
 	f.read((char*)&startTime, sizeof(Time));
 	if (f.eof() == true) throw "Invalid file format";
 
-	f.read((char*)&duration, sizeof(unsigned char));
+	f.read((char*)&duration, sizeof(unsigned short int));
 	if (f.eof() == true) throw "Invalid file format";
 
 	size_t len = 0;
@@ -42,7 +42,7 @@ const Time& Meeting::getStartTime() const
 	return startTime;
 }
 
-unsigned char Meeting::getDuration() const
+unsigned short int Meeting::getDuration() const
 {
 	return duration;
 }
@@ -81,8 +81,8 @@ Time Meeting::getEndTimeFromBinaryFile(std::fstream& f)
 	Time t;
 	f.read((char*)&t, sizeof(Time));
 
-	unsigned char duration;
-	f.read((char*)&duration, sizeof(unsigned char));
+	unsigned short int duration;
+	f.read((char*)&duration, sizeof(unsigned short int));
 
 	f.seekg(filePos, std::ios::beg);
 
@@ -95,8 +95,8 @@ unsigned char Meeting::getDurationFromBinaryFile(std::fstream& f)
 
 	f.ignore(sizeof(Time));
 
-	unsigned char duration;
-	f.read((char*)&duration, sizeof(unsigned char));
+	unsigned short int duration;
+	f.read((char*)&duration, sizeof(unsigned short int));
 
 	f.seekg(filePos, std::ios::beg);
 	return duration;
@@ -117,7 +117,7 @@ bool Meeting::intersects(const Meeting & other) const
 void Meeting::writeToBinaryFile(std::fstream & f) const
 {
 	f.write((const char*)&startTime, sizeof(Time));
-	f.write((const char*)&duration, sizeof(unsigned char));
+	f.write((const char*)&duration, sizeof(unsigned short int));
 	
 	size_t len = title.getLen();
 	f.write((const char*)&len, sizeof(size_t));
@@ -146,11 +146,9 @@ void Meeting::skipInBinaryFile(std::fstream& f)
 {
 	f.flush();
 
-	Time t;
-	f.read((char*)&t, sizeof(Time));
-	//f.ignore(sizeof(Time));
+	f.ignore(sizeof(Time));
 	if (f.fail() == true) throw "Invalid file format!";
-	f.ignore(sizeof(unsigned char));
+	f.ignore(sizeof(unsigned short int));
 	if (f.fail() == true) throw "Invalid file format!";
 
 	size_t len = 0;
@@ -163,6 +161,8 @@ void Meeting::skipInBinaryFile(std::fstream& f)
 	if (f.fail() == true) throw "Invalid file format!";
 	f.ignore(len * sizeof(char));
 	if (f.fail() == true) throw "Invalid file format!";
+
+	f.flush();
 }
 
 bool operator<(const Meeting& lhs, const Meeting& rhs)
@@ -182,6 +182,6 @@ bool operator==(const Meeting& lhs, const Meeting& rhs)
 
 std::ostream& operator<<(std::ostream& os, const Meeting& m)
 {
-	os << m.startTime << " " << (unsigned short int)m.duration << " " << m.title << " " << m.description;
+	os << m.startTime << " " << m.duration << " " << m.title << " " << m.description;
 	return os;
 }

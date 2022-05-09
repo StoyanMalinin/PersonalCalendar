@@ -26,6 +26,13 @@ private:
 	Meeting* toAdd[MAX_POSPONED + 1];
 
 public:
+	size_t getMeetingCnt() const;
+	size_t getToRemCnt() const;
+	size_t getToAddCnt() const;
+	const Time* getToRemAt(size_t ind) const;
+	const Meeting* getToAddAt(size_t ind) const;
+
+public:
 	CalendarDbFileManager(const char* fileName);
 	CalendarDbFileManager(CalendarDbFileManager&& other) = delete;
 	CalendarDbFileManager(const CalendarDbFileManager& other) = delete;
@@ -39,13 +46,16 @@ public:
 
 public:
 	void updatePostponedChanges();
+	void remMeeting(const Time& t);
+	void addMeeting(const Meeting& m);
+	void addMeeting(Meeting&& m);
 
 	static size_t getBinaryFileLen(std::fstream& f);
 	static void appendBinaryFileContent(std::fstream& destination, std::fstream& source);
 
 	void debugDatabase(std::ostream& os) const;
 
-private:
+public:
 	bool checkIfRemoved(const Time& t) const;
 	bool checkIfRemoved(const Meeting& m) const;
 
@@ -54,6 +64,8 @@ private:
 
 	Meeting* getMeetingbByTime(const Time& t) const;
 	Meeting* readMeetingFromDb(size_t ind) const;
+	Time getStartTimeByMeetingInd(size_t ind) const;
+	size_t getDurationFromMeetingInd(size_t ind) const;
 };
 
 #endif
