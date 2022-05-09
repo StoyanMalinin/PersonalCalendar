@@ -124,10 +124,10 @@ void test3()
 
 int main()
 {
-	//doctest::Context().run();
+	doctest::Context().run();
 
-	UIHandler uih;
-	uih.run();
+	//UIHandler uih;
+	//uih.run();
 
 	//test1();
 	//test2();

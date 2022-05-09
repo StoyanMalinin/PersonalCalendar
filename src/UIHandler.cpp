@@ -2,10 +2,8 @@
 
 #include <iostream>
 
-UIHandler::UIHandler() : currState(States::OK), db(nullptr)
-{
-
-}
+UIHandler::UIHandler() : currState(States::OK), db(nullptr), autosave(false)
+{}
 
 UIHandler::~UIHandler()
 {
@@ -19,6 +17,8 @@ void UIHandler::run()
 		printMenu();
 		int cmd = readCommand();
 		executeCommand(cmd);
+
+		if (autosave == true)  saveChanges(true);
 	}
 
 	if (currState == States::ERROR)
@@ -38,6 +38,8 @@ void UIHandler::printMenu() const
 	std::cout << "7 -> Look for appointment" << '\n';
 	std::cout << "8 -> Find time for appointment" << '\n';
 	std::cout << "9 -> Print business report" << '\n';
+	std::cout << "10 -> Toggle autosave(it is currently " << ((autosave==false)?"off":"on") << ")" << '\n';
+	std::cout << "11 -> Save and quit" << '\n';
 }
 
 int UIHandler::readCommand() const
@@ -47,7 +49,7 @@ int UIHandler::readCommand() const
 		int command;
 		std::cin >> command;
 
-		if (1 <= command && command <= 9) return command;
+		if (1 <= command && command <= 11) return command;
 		std::cout << "This is not a valid command id" << '\n';
 	}
 }
@@ -65,6 +67,8 @@ void UIHandler::executeCommand(int command)
 		if (command == 7) { lookForAppointment(false); return; }
 		if (command == 8) { findTimeForAppointment(false); return; }
 		if (command == 9) { printBusinessReport(false); return; }
+		if (command == 10) { toggleAutosave(false); return; }
+		if (command == 11) { saveAndQuit(false); return; }
 	}
 	catch (const char* s)
 	{
@@ -81,29 +85,8 @@ void UIHandler::loadCalendarDatabase(bool silent)
 {
 	if (db != nullptr)
 	{
-		try
-		{
-			saveChanges();
-			db->closeFile();
-		}
-		catch (std::logic_error& e)
-		{
-			std::cout << e.what() << '\n';
-		}
-		catch (std::exception& e)
-		{
-			std::cout << "A bad erorr has occured: " << '\n';
-			std::cout << e.what() << '\n';
-
-			currState = States::ERROR;
-		}
-		catch (...)
-		{
-			std::cout << "An unknown exception was thrown" << '\n';
-			currState = States::ERROR;
-
-			return;
-		}
+		saveAndCloseFile();
+		if (currState == States::ERROR) return;
 	}
 
 	String s;
@@ -128,6 +111,7 @@ void UIHandler::loadCalendarDatabase(bool silent)
 		std::cout << e.what() << '\n';
 	
 		currState = States::ERROR;
+		return;
 	}
 	catch (...)
 	{
@@ -159,6 +143,7 @@ void UIHandler::saveChanges(bool silent)
 		std::cout << e.what() << '\n';
 
 		currState = States::ERROR;
+		return;
 	}
 	catch (...)
 	{
@@ -194,6 +179,7 @@ void UIHandler::printDailySchedule(bool silent)
 		std::cout << e.what() << '\n';
 
 		currState = States::ERROR;
+		return;
 	}
 	catch (...)
 	{
@@ -230,6 +216,7 @@ void UIHandler::makeAppointment(bool silent)
 		std::cout << e.what() << '\n';
 
 		currState = States::ERROR;
+		return;
 	}
 	catch (...)
 	{
@@ -264,6 +251,7 @@ void UIHandler::removeAppointment(bool silent)
 		std::cout << e.what() << '\n';
 
 		currState = States::ERROR;
+		return;
 	}
 	catch (...)
 	{
@@ -301,6 +289,7 @@ void UIHandler::changeAppointment(bool silent)
 		std::cout << e.what() << '\n';
 
 		currState = States::ERROR;
+		return;
 	}
 	catch (...)
 	{
@@ -335,6 +324,7 @@ void UIHandler::lookForAppointment(bool silent)
 		std::cout << e.what() << '\n';
 
 		currState = States::ERROR;
+		return;
 	}
 	catch (...)
 	{
@@ -379,6 +369,7 @@ void UIHandler::findTimeForAppointment(bool silent)
 		std::cout << e.what() << '\n';
 
 		currState = States::ERROR;
+		return;
 	}
 	catch (...)
 	{
@@ -425,6 +416,7 @@ void UIHandler::printBusinessReport(bool silent)
 		std::cout << e.what() << '\n';
 
 		currState = States::ERROR;
+		return;
 	}
 	catch (...)
 	{
@@ -432,6 +424,41 @@ void UIHandler::printBusinessReport(bool silent)
 		currState = States::ERROR;
 
 		return;
+	}
+}
+
+void UIHandler::toggleAutosave(bool silent)
+{
+	autosave ^= true;
+}
+
+void UIHandler::saveAndQuit(bool silent)
+{
+	if(db!=nullptr) saveAndCloseFile();
+	currState = States::QUIT;
+}
+
+void UIHandler::saveAndCloseFile()
+{
+	try
+	{
+		saveChanges();
+		db->closeFile();
+	}
+	catch (std::logic_error& e)
+	{
+		std::cout << e.what() << '\n';
+	}
+	catch (std::exception& e)
+	{
+		std::cout << "A bad erorr has occured: " << '\n';
+		std::cout << e.what() << '\n';
+		currState = States::ERROR;
+	}
+	catch (...)
+	{
+		std::cout << "An unknown exception was thrown" << '\n';
+		currState = States::ERROR;
 	}
 }
 

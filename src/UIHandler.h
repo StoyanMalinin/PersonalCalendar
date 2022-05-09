@@ -15,6 +15,8 @@ private:
 
 private:
 	States currState;
+
+	bool autosave;
 	CalendarDatabase* db;
 
 public:
@@ -43,6 +45,11 @@ private:
 	void lookForAppointment(bool silent = false);
 	void findTimeForAppointment(bool silent = false);
 	void printBusinessReport(bool silent = false);
+	void toggleAutosave(bool silent = false);
+	void saveAndQuit(bool silent = false);
+
+private:
+	void saveAndCloseFile();
 
 private:
 	static Time readDate();

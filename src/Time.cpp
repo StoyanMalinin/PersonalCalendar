@@ -61,12 +61,13 @@ unsigned short int Time::getYear() const
 
 size_t Time::getWeekDay() const
 {
-    static const Time knownDates[6] = { Time(0, 0, 1, 1, 1), Time(0, 0, 1, 1, 500), Time(0, 0, 1, 1, 1000), Time(0, 0, 1, 1, 1500), Time(0, 0, 1, 1, 2000), Time(0, 0, 1, 1, 2500) };
-    static const size_t knowDatesWeekDays[6] = { 5, 5, 0, 2, 5, 4 };
+    const size_t KNOWN = 7;
+    static const Time knownDates[KNOWN] = { Time(0, 0, 1, 1, 1), Time(0, 0, 1, 1, 500), Time(0, 0, 1, 1, 1000), Time(0, 0, 1, 1, 1500), Time(0, 0, 1, 1, 1900), Time(0, 0, 1, 1, 2000), Time(0, 0, 1, 1, 2500) };
+    static const size_t knowDatesWeekDays[KNOWN] = { 5, 5, 0, 2, 6, 5, 4 };
 
     Time t;
     size_t weekDay = 0;
-    for (int i = 6 - 1; i >= 0; i--)
+    for (int i = KNOWN - 1; i >= 0; i--)
     {
         if (knownDates[i] <= *this) 
         { 
@@ -124,10 +125,16 @@ void Time::validateConstructor(size_t hours, size_t minutes, size_t day, size_t 
 void Time::fitInHourFrame(unsigned char hLow, unsigned char hHigh)
 {
     if (hLow <= hours && hours <= hHigh) return;
-    if (hours < hLow) hours = hLow;
+    if (hours < hLow)
+    {
+        hours = hLow;
+        minutes = 0;
+    }
     if (hours > hHigh)
     {
         nextDay();
+
+        minutes = 0;
         hours = hLow;
     }
 }
@@ -145,7 +152,11 @@ void Time::nextMinute()
 void Time::nextHour()
 {
     hours++;
-    if (validateHours(hours) == false) nextDay();
+    if (validateHours(hours) == false)
+    {
+        hours = 0;
+        nextDay();
+    }
 }
 
 void Time::nextDay()
