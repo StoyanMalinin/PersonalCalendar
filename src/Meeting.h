@@ -15,7 +15,6 @@ private:
 	unsigned short int duration;
 
 public:
-	//add validation for startTime and duration
 	Meeting(Time _startTime, unsigned short int _duration, const String& _title, const String& _description);
 	Meeting(Time _startTime, unsigned short int _duration, String&& _title, String&& _description);
 	
