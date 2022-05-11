@@ -143,11 +143,6 @@ bool String::findSubstr(const String& s, const size_t* f) const
 	return findSubstr(s.data, s.len, f);
 }
 
-void String::fixWhenImproperlyAllocated()
-{
-	cutLinkToDynamic();
-}
-
 void String::resize(size_t newCap)
 {
 	if (cap == newCap) return;

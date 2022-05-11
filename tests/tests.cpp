@@ -1,3 +1,4 @@
+#define DOCTEST_CONFIG_IMPLEMENT
 #include "doctest.h"
 
 #include "../src/Time.h"
@@ -9,8 +10,8 @@ TEST_SUITE("Time tests")
 	TEST_CASE("date validation")
 	{
 		CHECK(Time::validateDate(19, 11, 2002) == true);
-		CHECK(Time::validateDate(29, 2, 2020)==true);
-		CHECK(Time::validateDate(29, 2, 2019)==false);
+		CHECK(Time::validateDate(29, 2, 2020) == true);
+		CHECK(Time::validateDate(29, 2, 2019) == false);
 	}
 
 	TEST_CASE("day of week")
@@ -19,7 +20,7 @@ TEST_SUITE("Time tests")
 		CHECK(Time(9, 5, 2022).getWeekDay() == 0);
 		CHECK(Time(6, 1, 1950).getWeekDay() == 4);
 	}
-	
+
 	TEST_CASE("comparisons")
 	{
 		CHECK(Time(15, 20, 20, 6, 2015) == Time(15, 20, 20, 6, 2015));
@@ -30,14 +31,14 @@ TEST_SUITE("Time tests")
 		CHECK(Time(2, 15, 6, 7, 1990) <= Time(2, 15, 6, 7, 1990));
 		CHECK(Time(2, 15, 6, 7, 1990) >= Time(2, 15, 6, 7, 1990));
 	}
-	
+
 	TEST_CASE("operator +=")
 	{
 		CHECK((Time(20, 44, 11, 9, 2000) += 17) == Time(21, 1, 11, 9, 2000));
-		CHECK((Time(22, 50, 28, 2, 2016) += (60+10)) == Time(0, 0, 29, 2, 2016));
-		CHECK((Time(22, 50, 28, 2, 2015) += (60+10)) == Time(0, 0, 1, 3, 2015));
+		CHECK((Time(22, 50, 28, 2, 2016) += (60 + 10)) == Time(0, 0, 29, 2, 2016));
+		CHECK((Time(22, 50, 28, 2, 2015) += (60 + 10)) == Time(0, 0, 1, 3, 2015));
 	}
-	
+
 	TEST_CASE("fit in hour frame - outside")
 	{
 		Time t(20, 15, 20, 7, 2017);
@@ -70,9 +71,9 @@ TEST_SUITE("string tests")
 	TEST_CASE("substring finding 1")
 	{
 		String s("bababc");
-		CHECK(s.findSubstr((const char*)"babc")==true);
-		CHECK(s.findSubstr((const char*)"baba")==true);
-		CHECK(s.findSubstr((const char*)"abd")==false);
+		CHECK(s.findSubstr((const char*)"babc") == true);
+		CHECK(s.findSubstr((const char*)"baba") == true);
+		CHECK(s.findSubstr((const char*)"abd") == false);
 	}
 
 	TEST_CASE("substring finding 2")
@@ -145,7 +146,7 @@ TEST_SUITE("Meeting tests")
 	TEST_CASE("constructor and getters")
 	{
 		Meeting m(Time(14, 19, 11, 2002), 3 * 60, String("sreshta s ivan"), String("shte se sreshtam s ivan"));
-		
+
 		CHECK(m.getTitle() == "sreshta s ivan");
 		CHECK(m.getDescription() == "shte se sreshtam s ivan");
 		CHECK(m.getStartTime() == Time(14, 19, 11, 2002));
@@ -174,17 +175,17 @@ TEST_SUITE("Meeting tests")
 
 	TEST_CASE("constructor and intersects function 1")
 	{
-		Meeting m1(Time(14, 19, 11, 2002), 3*60, String("sreshta s ivan"), String("shte se sreshtam s ivan"));
-		Meeting m2(Time(15, 19, 11, 2002), 2*60, String("sreshta s gosho"), String("shte se sreshtam s gosho"));
+		Meeting m1(Time(14, 19, 11, 2002), 3 * 60, String("sreshta s ivan"), String("shte se sreshtam s ivan"));
+		Meeting m2(Time(15, 19, 11, 2002), 2 * 60, String("sreshta s gosho"), String("shte se sreshtam s gosho"));
 
 		CHECK(m1.intersects(m2) == true);
 	}
 
 	TEST_CASE("constructor and intersects function 2")
 	{
-		Meeting m1(Time(14, 19, 11, 2002), 3*60, String("sreshta s ivan"), String("shte se sreshtam s ivan"));
-		Meeting m2(Time(17, 19, 11, 2002), 2*60, String("sreshta s gosho"), String("shte se sreshtam s gosho"));
-		
+		Meeting m1(Time(14, 19, 11, 2002), 3 * 60, String("sreshta s ivan"), String("shte se sreshtam s ivan"));
+		Meeting m2(Time(17, 19, 11, 2002), 2 * 60, String("sreshta s gosho"), String("shte se sreshtam s gosho"));
+
 		CHECK(m1.intersects(m2) == false);
 	}
 }

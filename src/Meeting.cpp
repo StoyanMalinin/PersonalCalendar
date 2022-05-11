@@ -6,6 +6,9 @@ Meeting::Meeting(Time _startTime, unsigned short int _duration, const String& _t
 Meeting::Meeting(Time _startTime, unsigned short int _duration, String && _title, String && _description) : startTime(_startTime), duration(_duration), title(_title), description(_description)
 {}
 
+Meeting::Meeting() : duration(0)
+{}
+
 void Meeting::loadFromBinaryFile(std::fstream & f)
 {
 	f.read((char*)&startTime, sizeof(Time));
@@ -89,7 +92,7 @@ Time Meeting::getEndTimeFromBinaryFile(std::fstream& f)
 	return t + duration;
 }
 
-unsigned char Meeting::getDurationFromBinaryFile(std::fstream& f)
+unsigned short int Meeting::getDurationFromBinaryFile(std::fstream& f)
 {
 	size_t filePos = f.tellg();
 
@@ -114,7 +117,7 @@ bool Meeting::intersects(const Meeting & other) const
 	return second->startTime < endTime;
 }
 
-void Meeting::writeToBinaryFile(std::fstream & f) const
+void Meeting::writeToBinaryFile(std::fstream & f)
 {
 	f.write((const char*)&startTime, sizeof(Time));
 	f.write((const char*)&duration, sizeof(unsigned short int));
@@ -126,12 +129,6 @@ void Meeting::writeToBinaryFile(std::fstream & f) const
 	len = description.getLen();
 	f.write((const char*)&len, sizeof(size_t));
 	f.write(description.getData(), sizeof(char) * description.getLen());
-}
-
-void Meeting::fixWhenImproperlyAllocated()
-{
-	title.fixWhenImproperlyAllocated();
-	description.fixWhenImproperlyAllocated();
 }
 
 void Meeting::swap(Meeting& other)

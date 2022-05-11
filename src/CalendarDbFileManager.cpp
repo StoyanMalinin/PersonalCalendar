@@ -176,8 +176,7 @@ void CalendarDbFileManager::load()
 
 	for (size_t i = 0; i < toAddCnt; i++)
 	{
-		toAdd[i] = (Meeting*)malloc(sizeof(Meeting));
-		toAdd[i]->fixWhenImproperlyAllocated();
+		toAdd[i] = new Meeting();
 		toAdd[i]->loadFromBinaryFile(f);
 
 		if (f.eof() == true) throw std::exception("Invalid file format!");
@@ -397,9 +396,7 @@ void CalendarDbFileManager::debugDatabase(std::ostream& os) const
 
 	for (size_t i = 0; i < currMeetingCnt; i++)
 	{
-		Meeting* m;
-		m = (Meeting*)malloc(sizeof(Meeting));
-		m->fixWhenImproperlyAllocated();
+		Meeting* m = new Meeting();
 		m->loadFromBinaryFile(f);
 
 		os << *m << '\n';
@@ -503,9 +500,7 @@ Meeting* CalendarDbFileManager::readMeetingFromDb(size_t ind) const
 	size_t filePos = f.tellg();
 	f.seekg(meetingPtrs[ind], std::ios::beg);
 
-	Meeting* m;
-	m = (Meeting*)malloc(sizeof(Meeting));
-	m->fixWhenImproperlyAllocated();
+	Meeting* m = new Meeting();
 	m->loadFromBinaryFile(f);
 
 	f.seekg(filePos, std::ios::beg);

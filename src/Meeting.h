@@ -17,7 +17,11 @@ private:
 public:
 	Meeting(Time _startTime, unsigned short int _duration, const String& _title, const String& _description);
 	Meeting(Time _startTime, unsigned short int _duration, String&& _title, String&& _description);
-	
+	Meeting();
+	/// <summary>
+	/// Inits the parameters of this object from the binary file, provided that the get pointer points to a beginning of a Meeting object
+	/// </summary>
+	/// <param name="f">An open binary file</param>
 	void loadFromBinaryFile(std::fstream& f);
 
 public:
@@ -27,9 +31,21 @@ public:
 	const String& getDescription() const;
 	Time getEndTime() const;
 
+	/// <summary>
+	/// Gets the start time of a Meeting object, provided that the get pointer points to a beginning of a Meeting object
+	/// </summary>
+	/// <param name="f">An open binary file</param>
 	static Time getStartTimeFromBinaryFile(std::fstream &f);
+	/// <summary>
+	/// Gets the end time of a Meeting object, provided that the get pointer points to a beginning of a Meeting object
+	/// </summary>
+	/// <param name="f">An open binary file</param>
 	static Time getEndTimeFromBinaryFile(std::fstream &f);
-	static unsigned char getDurationFromBinaryFile(std::fstream &f);
+	/// <summary>
+	/// Gets the duration of a Meeting object, provided that the get pointer points to a beginning of a Meeting object
+	/// </summary>
+	/// <param name="f">An open binary file</param>
+	static unsigned short int getDurationFromBinaryFile(std::fstream &f);
 
 public:
 	bool intersects(const Meeting& other) const;
@@ -40,11 +56,16 @@ public:
 	void swap(Meeting& other);
 public:
 	friend std::ostream& operator <<(std::ostream& os, const Meeting& m);
+	/// <summary>
+	/// Skips this object in a binary file, provided that the get pointer points to a beginning of a Meeting object
+	/// </summary>
+	/// <param name="f">An open binary file</param>
 	static void skipInBinaryFile(std::fstream& f);
-	void writeToBinaryFile(std::fstream& f) const;
-
-public:
-	void fixWhenImproperlyAllocated();
+	/// <summary>
+	/// Writes this object to a binary file
+	/// </summary>
+	/// <param name="f">An open binary file</param>
+	void writeToBinaryFile(std::fstream& f);
 };
 
 #endif

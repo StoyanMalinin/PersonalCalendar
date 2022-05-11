@@ -42,9 +42,34 @@ private:
 public:
 	bool findSubstr(String& s) const;
 	bool findSubstr(const char* s) const;
+	/// <summary>
+	/// Checks if <b>s</b> is a substring of this string
+	/// </summary>
+	/// <param name="s"></param>
+	/// <param name="n">length of <b>s</b></param>
+	/// <returns></returns>
 	bool findSubstr(const char* s, size_t n) const;
+	/// <summary>
+	/// Checks if <b>s</b> is a substring of this string
+	/// </summary>
+	/// <param name="s"></param>
+	/// <param name="n">length of <b>s</b></param>
+	/// <param name="f">The prefix function from the Knuth–Morris–Pratt algorithm of <b>s</b></param>
+	/// <returns></returns>
 	bool findSubstr(const char* s, size_t n, const size_t* f) const;
+	/// <summary>
+	/// Checks if <b>s</b> is a substring of this string
+	/// </summary>
+	/// <param name="s"></param>
+	/// <param name="f">The prefix function from the Knuth–Morris–Pratt algorithm of <b>s</b></param>
+	/// <returns></returns>
 	bool findSubstr(const String& s, const size_t* f) const;
+	/// <summary>
+	/// Gets the prefix function of <b>s</b> from the Knuth–Morris–Pratt algorithm
+	/// </summary>
+	/// <param name="s"></param>
+	/// <param name="len">length of <b>s</b></param>
+	/// <returns></returns>
 	static size_t* getPrefixFunction(const char* s, size_t len);
 
 public:
@@ -67,10 +92,15 @@ public:
 	
 	void swap(String& other);
 	static String toString(size_t num);
+	/// <summary>
+	/// Addes characters to the left or to the right of <b>s</b> to make it at least as long as <b>len</b>
+	/// </summary>
+	/// <param name="s"></param>
+	/// <param name="len">minimum length of resulting string</param>
+	/// <param name="c">character to add</param>
+	/// <param name="pos">false - left, true - right</param>
+	/// <returns></returns>
 	static String format(String s, size_t len, char c, bool pos);
-	
-public:
-	void fixWhenImproperlyAllocated();
 };
 
 #endif // !__STRING_H
