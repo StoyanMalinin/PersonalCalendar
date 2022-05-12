@@ -253,14 +253,7 @@ void CalendarDbFileManager::remMeeting(const Time& t)
 
 	if (toRemCnt + toAddCnt >= MAX_POSPONED)
 	{
-		updatePostponedChanges();
-
-		delete[] meetingPtrs;
-		for (size_t i = 0; i < toRemCnt; i++)
-			delete toRem[i];
-		for (size_t i = 0; i < toAddCnt; i++)
-			delete toAdd[i];
-		load();
+		updateChangesAndReload();
 	}
 }
 
@@ -270,13 +263,8 @@ void CalendarDbFileManager::addMeeting(const Meeting& m)
 	{
 		if (*toRem[i] == m.getStartTime())
 		{
-			delete toRem[i];
-			toRem[i] = nullptr;
-
-			for (size_t j = i; j + 1 < toRemCnt; j++) std::swap(toRem[j], toRem[j + 1]);
-			toRemCnt--;
-
-			return;
+			updateChangesAndReload();
+			break;
 		}
 	}
 
@@ -294,14 +282,7 @@ void CalendarDbFileManager::addMeeting(const Meeting& m)
 
 	if (toRemCnt + toAddCnt >= MAX_POSPONED)
 	{
-		updatePostponedChanges();
-
-		delete[] meetingPtrs;
-		for (size_t i = 0; i < toRemCnt; i++)
-			delete toRem[i];
-		for (size_t i = 0; i < toAddCnt; i++)
-			delete toAdd[i];
-		load();
+		updateChangesAndReload();
 	}
 }
 
@@ -311,13 +292,8 @@ void CalendarDbFileManager::addMeeting(Meeting&& m)
 	{
 		if (*toRem[i] == m.getStartTime())
 		{
-			delete toRem[i];
-			toRem[i] = nullptr;
-
-			for (size_t j = i; j + 1 < toRemCnt; j++) std::swap(toRem[j], toRem[j + 1]);
-			toRemCnt--;
-
-			return;
+			updateChangesAndReload();
+			break;
 		}
 	}
 
@@ -335,14 +311,7 @@ void CalendarDbFileManager::addMeeting(Meeting&& m)
 
 	if (toRemCnt + toAddCnt >= MAX_POSPONED)
 	{
-		updatePostponedChanges();
-
-		delete[] meetingPtrs;
-		for (size_t i = 0; i < toRemCnt; i++)
-			delete toRem[i];
-		for (size_t i = 0; i < toAddCnt; i++)
-			delete toAdd[i];
-		load();
+		updateChangesAndReload();
 	}
 }
 
@@ -432,6 +401,23 @@ bool CalendarDbFileManager::checkIfRemoved(const Time& t) const
 	return false;
 }
 
+bool CalendarDbFileManager::checkIfRemovedDb(size_t ind) const
+{
+	size_t filePos = f.tellg();
+
+	f.seekg(meetingPtrs[ind], std::ios::beg);
+	bool res = checkIfRemoved(Meeting::getStartTimeFromBinaryFile(f));
+
+	f.seekg(filePos, std::ios::beg);
+	return res;
+}
+
+bool CalendarDbFileManager::checkIfRemovedPostponed(size_t ind) const
+{
+	if (ind >= toAddCnt) return false;
+	return checkIfRemoved(toAdd[ind]->getStartTime());
+}
+
 bool CalendarDbFileManager::checkIfRemoved(const Meeting& m) const
 {
 	return checkIfRemoved(m.getStartTime());
@@ -449,16 +435,36 @@ size_t CalendarDbFileManager::getFirstAfterDb(const Time& t) const
 	{
 		mid = (l + r) / 2;
 
-		f.seekg(meetingPtrs[mid], std::ios::beg);
+		int nxt = getNextPresentDb(mid);
+		if (nxt == meetingCnt) { r = mid - 1; continue; }
+
+		f.seekg(meetingPtrs[nxt], std::ios::beg);
+
 		if (Meeting::getStartTimeFromBinaryFile(f) < t) l = mid + 1;
 		else r = mid;
 	}
 
-	f.seekg(meetingPtrs[l], std::ios::beg);
-	if (Meeting::getStartTimeFromBinaryFile(f) >= t) return l;
+	int nxt = getNextPresentDb(l);
+	if (nxt < meetingCnt)
+	{
+		f.seekg(meetingPtrs[nxt], std::ios::beg);
+		if (Meeting::getStartTimeFromBinaryFile(f) >= t)
+		{
+			f.seekg(filePos, std::ios::beg);
+			return nxt;
+		}
+	}
 
-	f.seekg(meetingPtrs[r], std::ios::beg);
-	if (Meeting::getStartTimeFromBinaryFile(f) >= t) return r;
+	nxt = getNextPresentDb(r);
+	if (nxt < meetingCnt)
+	{
+		f.seekg(meetingPtrs[nxt], std::ios::beg);
+		if (Meeting::getStartTimeFromBinaryFile(f) >= t)
+		{
+			f.seekg(filePos, std::ios::beg);
+			return nxt;
+		}
+	}
 
 	f.seekg(filePos, std::ios::beg);
 	return meetingCnt;
@@ -467,28 +473,25 @@ size_t CalendarDbFileManager::getFirstAfterDb(const Time& t) const
 size_t CalendarDbFileManager::getFirstAFterPostponed(const Time& t) const
 {
 	if (toAddCnt == 0) return 0;
-
-	int l = 0, r = toAddCnt - 1, mid;
-	while (l + 1 < r)
+	for (int i = 0; i < toAddCnt; i++)
 	{
-		mid = (l + r) / 2;
-
-		if (toAdd[mid]->getStartTime() < t) l = mid + 1;
-		else r = mid;
+		if (checkIfRemoved(toAdd[i]->getStartTime()) == false && toAdd[i]->getStartTime() >= t) return i;
 	}
 
-	if (toAdd[l]->getStartTime() >= t) return l;
-	if (toAdd[r]->getStartTime() >= t) return r;
 	return toAddCnt;
 }
 
 Meeting* CalendarDbFileManager::getMeetingbByTime(const Time& t) const
 {
 	size_t ind = getFirstAFterPostponed(t);
-	if (ind < toAddCnt) return new Meeting(*toAdd[ind]);
+	if (ind < toAddCnt && toAdd[ind]->getStartTime()==t) return new Meeting(*toAdd[ind]);
 
 	ind = getFirstAfterDb(t);
-	if (ind < meetingCnt) return readMeetingFromDb(ind);
+	if (ind < meetingCnt)
+	{
+		Meeting* m = readMeetingFromDb(ind);
+		if (m->getStartTime() == t) return m;
+	}
 
 	return nullptr;
 }
@@ -529,4 +532,41 @@ size_t CalendarDbFileManager::getDurationFromMeetingInd(size_t ind) const
 
 	f.seekg(filePos, std::ios::beg);
 	return res;
+}
+
+int CalendarDbFileManager::getNextPresentDb(size_t ind) const
+{
+	size_t filePos = f.tellg();
+
+	while (ind < meetingCnt && checkIfRemovedDb(ind)==true)
+	{
+		ind++;
+	}
+
+	f.seekg(filePos, std::ios::beg);
+	return ind;
+}
+
+int CalendarDbFileManager::getNextPresentPostponed(size_t ind) const
+{
+	while (ind < toAddCnt && checkIfRemoved(toAdd[ind]->getStartTime()) == true) ind++;
+	return ind;
+}
+
+void CalendarDbFileManager::updateChangesAndReload()
+{
+	updatePostponedChanges();
+
+	delete[] meetingPtrs;
+	for (size_t i = 0; i < toRemCnt; i++)
+	{
+		delete toRem[i];
+		toRem[i] = nullptr;
+	}
+	for (size_t i = 0; i < toAddCnt; i++)
+	{
+		delete toAdd[i];
+		toAdd[i] = nullptr;
+	}
+	load();
 }

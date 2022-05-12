@@ -16,7 +16,7 @@ private:
 private:
 	States currState;
 
-	bool autosave;
+	bool autosave, screenCleared;
 	CalendarDatabase* db;
 
 public:
@@ -47,6 +47,7 @@ private:
 	void printBusinessReport(bool silent = false);
 	void toggleAutosave(bool silent = false);
 	void saveAndQuit(bool silent = false);
+	void clearScreen(bool silent = false);
 
 private:
 	void saveAndCloseFile();

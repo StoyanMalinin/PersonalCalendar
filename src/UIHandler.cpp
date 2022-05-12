@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-UIHandler::UIHandler() : currState(States::OK), db(nullptr), autosave(false)
+UIHandler::UIHandler() : currState(States::OK), db(nullptr), autosave(false), screenCleared(true)
 {}
 
 UIHandler::~UIHandler()
@@ -15,10 +15,12 @@ void UIHandler::run()
 	while (currState == States::OK)
 	{
 		printMenu();
+		screenCleared = false;
+
 		int cmd = readCommand();
 		executeCommand(cmd);
 
-		if (autosave == true)  saveChanges(true);
+		if (autosave == true && db!=nullptr)  saveChanges(true);
 	}
 
 	if (currState == States::ERROR)
@@ -29,6 +31,7 @@ void UIHandler::run()
 
 void UIHandler::printMenu() const
 {
+	if(screenCleared==false) std::cout << '\n';
 	std::cout << "1 -> Load calendar database" << '\n';
 	std::cout << "2 -> Save changes" << '\n';
 	std::cout << "3 -> Make appointment" << '\n';
@@ -40,6 +43,7 @@ void UIHandler::printMenu() const
 	std::cout << "9 -> Print business report" << '\n';
 	std::cout << "10 -> Toggle autosave(it is currently " << ((autosave==false)?"off":"on") << ")" << '\n';
 	std::cout << "11 -> Save and quit" << '\n';
+	std::cout << "12 -> Clear screen" << '\n';
 }
 
 int UIHandler::readCommand() const
@@ -49,7 +53,7 @@ int UIHandler::readCommand() const
 		int command;
 		std::cin >> command;
 
-		if (1 <= command && command <= 11) return command;
+		if (1 <= command && command <= 12) return command;
 		std::cout << "This is not a valid command id" << '\n';
 	}
 }
@@ -69,15 +73,18 @@ void UIHandler::executeCommand(int command)
 		if (command == 9) { printBusinessReport(false); return; }
 		if (command == 10) { toggleAutosave(false); return; }
 		if (command == 11) { saveAndQuit(false); return; }
+		if (command == 12) { clearScreen(false); return; }
+
+		throw std::logic_error("Unknown command");
 	}
-	catch (const char* s)
+	catch (std::logic_error& e)
 	{
-		std::cout << "An exception was thrown during the exectution of the command:" << '\n';
-		if(s!=nullptr) std::cout << s << '\n';
+		std::cout << e.what() << '\n';
 	}
 	catch (...)
 	{
 		std::cout << "An unknown exception was thrown!" << '\n';
+		currState = States::ERROR;
 	}
 }
 
@@ -167,6 +174,7 @@ void UIHandler::printDailySchedule(bool silent)
 	try
 	{
 		Time t = readDate();
+
 		db->printRangeReport(Time(0, t.getDay(), t.getMonth(), t.getYear()), Time(23, 59, t.getDay(), t.getMonth(), t.getYear()), std::cout);
 	}
 	catch (std::logic_error& e)
@@ -277,7 +285,8 @@ void UIHandler::changeAppointment(bool silent)
 		std::cout << "Enter new appointment start time: " << '\n';
 		Time tNew = readTime();
 
-		db->changeMeetings(tOld, tNew);
+		bool res = db->changeMeetings(tOld, tNew);
+		if (res == false) throw std::logic_error("Could not change the appointment start time");
 	}
 	catch (std::logic_error& e)
 	{
@@ -310,7 +319,7 @@ void UIHandler::lookForAppointment(bool silent)
 	try
 	{
 		String s;
-		std::cout << "Enter search string: "; std::cin >> s;
+		std::cout << "Enter search string: "; std::cin.ignore(); getline(std::cin, s);
 
 		db->printStringReport(s, std::cout);
 	}
@@ -397,8 +406,8 @@ void UIHandler::printBusinessReport(bool silent)
 		Time endDate = Time(23, 59, endDateInput.getDay(), endDateInput.getMonth(), endDateInput.getYear());
 
 		String filename = "stats-" + String::format(String::toString(startDate.getYear()), 4, '0', false) + "-" +
-									 String::format(String::toString(startDate.getMonth()), 4, '0', false) + "-" +
-									 String::format(String::toString(startDate.getDay()), 4, '0', false);
+									 String::format(String::toString(startDate.getMonth()), 2, '0', false) + "-" +
+									 String::format(String::toString(startDate.getDay()), 2, '0', false) + ".txt";
 
 		std::ofstream f(filename.getData());
 		if (f.is_open() == false) throw std::logic_error("file could not open!");
@@ -436,6 +445,12 @@ void UIHandler::saveAndQuit(bool silent)
 {
 	if(db!=nullptr) saveAndCloseFile();
 	currState = States::QUIT;
+}
+
+void UIHandler::clearScreen(bool silent)
+{
+	screenCleared = true;
+	system("cls");
 }
 
 void UIHandler::saveAndCloseFile()

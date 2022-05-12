@@ -1,4 +1,5 @@
 #include "Time.h"
+#include "String.h"
 
 #include <iostream>
 
@@ -264,6 +265,7 @@ bool operator!=(const Time& lhs, const Time& rhs)
 
 std::ostream& operator<<(std::ostream& os, const Time& t)
 {
-    os << (unsigned short int)t.hours << ":" << (unsigned short int)t.minutes << ", " << (unsigned short int)t.day << "-" << (unsigned short int)t.month << "-" << t.year;
+    os << String::format(String::toString((unsigned short int)t.hours), 2, '0', false) << ":" << String::format(String::toString((unsigned short int)t.minutes), 2, '0', false) 
+       << " " << String::format(String::toString((unsigned short int)t.day), 2, '0', false) << "-" << String::format(String::toString((unsigned short int)t.month), 2, '0', false) << "-" << t.year;
     return os;
 }

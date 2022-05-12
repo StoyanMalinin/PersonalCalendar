@@ -179,6 +179,6 @@ bool operator==(const Meeting& lhs, const Meeting& rhs)
 
 std::ostream& operator<<(std::ostream& os, const Meeting& m)
 {
-	os << m.startTime << " " << m.duration << " " << m.title << " " << m.description;
+	os << m.startTime << " duration:" <<  m.duration << " mins, " << m.title << " - " << m.description;
 	return os;
 }

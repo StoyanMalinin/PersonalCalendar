@@ -35,11 +35,13 @@ void CalendarDatabase::remMeeting(const Meeting& m)
 
 void CalendarDatabase::addMeeting(const Meeting& m)
 {
+	if (checkCollisionPostponed(m) == true || checkCollisionDb(m) == true) throw std::logic_error("The added appointment is colliding with others!");
 	db.addMeeting(m);
 }
 
 void CalendarDatabase::addMeeting(Meeting&& m)
 {
+	if (checkCollisionPostponed(m) == true || checkCollisionDb(m) == true) throw std::logic_error("The added appointment is colliding with others!");
 	db.addMeeting(m);
 }
 
@@ -87,6 +89,7 @@ void CalendarDatabase::getRangeReport(const Time& l, const Time& r, size_t& n, M
 	}
 	while (postponedPtr < db.getToAddCnt())
 	{
+		if (db.getToAddAt(postponedPtr)->getEndTime() > r) break;
 		if (db.checkIfRemoved(db.getToAddAt(postponedPtr)->getStartTime()) == false)
 		{
 			arr[arrInd] = new Meeting(*db.getToAddAt(postponedPtr));
@@ -118,9 +121,15 @@ bool CalendarDatabase::changeMeetings(const Meeting& oldMeeting, const Meeting& 
 	remMeeting(oldMeeting.getStartTime());
 	
 	if (checkCollisionDb(newMeeting) == false && checkCollisionPostponed(newMeeting) == false)
+	{
 		addMeeting(newMeeting);
+		return true;
+	}
 	else
+	{
 		addMeeting(oldMeeting);
+		return false;
+	}
 
 	return false;
 }
@@ -128,8 +137,8 @@ bool CalendarDatabase::changeMeetings(const Meeting& oldMeeting, const Meeting& 
 bool CalendarDatabase::changeMeetings(const Time& oldMeetingTime, const Time& newMeetingTime)
 {
 	Meeting *oldMeeting = db.getMeetingbByTime(oldMeetingTime);
-	Meeting* newMeeting = db.getMeetingbByTime(newMeetingTime);
-	if (oldMeeting == nullptr || newMeeting == nullptr) return false;
+	if (oldMeeting == nullptr) return false;
+	Meeting* newMeeting = new Meeting(newMeetingTime, oldMeeting->getDuration(), oldMeeting->getTitle(), oldMeeting->getDescription());//db.getMeetingbByTime(newMeetingTime);
 
 	bool res = changeMeetings(*oldMeeting, *newMeeting);
 	delete oldMeeting;
@@ -256,35 +265,41 @@ bool CalendarDatabase::checkCollisionDb(const Meeting& m) const
 {
 	if (db.getMeetingCnt() == 0) return false;
 
-	int l = 0, r = db.getMeetingCnt() - 1, mid;
-	while (l + 1 < r)
-	{
-		mid = (l + r) / 2;
+	int ind1 = db.getFirstAfterDb(m.getStartTime()), ind2;
 
-		if (db.getStartTimeByMeetingInd(mid) >= m.getStartTime()) r = mid;
-		else l = mid + 1;
+	ind2 = ind1;
+	while (ind2 < db.getMeetingCnt() && db.checkIfRemovedDb(ind2) == true) ind2++;
+	if (ind2 < db.getMeetingCnt())
+	{
+		Meeting* mDb = db.readMeetingFromDb(ind2);
+		bool res = m.intersects(*mDb);
+
+		delete mDb;
+		if (res == true) return true;
 	}
 
-	if (db.getStartTimeByMeetingInd(l) >= m.getStartTime()) return true;
-	if (db.getStartTimeByMeetingInd(r) >= m.getStartTime()) return true;
+	ind2 = ind1 - 1;
+	while (ind2>=0 && db.checkIfRemovedDb(ind2) == true) ind2--;
+	if (ind2>=0)
+	{
+		Meeting* mDb = db.readMeetingFromDb(ind2);
+		bool res = m.intersects(*mDb);
+
+		delete mDb;
+		if (res == true) return true;
+	}
+
 	return false;
 }
 
 bool CalendarDatabase::checkCollisionPostponed(const Meeting& m) const
 {
 	if (db.getToAddCnt() == 0) return false;
-
-	int l = 0, r = db.getToAddCnt() - 1, mid;
-	while (l + 1 < r)
+	for (size_t i = 0; i < db.getToAddCnt(); i++)
 	{
-		mid = (l + r) / 2;
-
-		if (db.getToAddAt(mid)->getEndTime() >= m.getStartTime()) r = mid;
-		else l = mid + 1;
+		if (db.checkIfRemovedPostponed(i) == false && m.intersects(*db.getToAddAt(i)) == true) return true;
 	}
-
-	if (db.getToAddAt(l)->intersects(m) == true) return true;
-	if (db.getToAddAt(r)->intersects(m) == true) return true;
+	
 	return false;
 }
 

@@ -76,6 +76,8 @@ public:
 	/// <param name="t"></param>
 	/// <returns></returns>
 	bool checkIfRemoved(const Time& t) const;
+	bool checkIfRemovedDb(size_t ind) const;
+	bool checkIfRemovedPostponed(size_t ind) const;
 	/// <summary>
 	/// Cheks if the meeting <b>m</b> is removed
 	/// </summary>
@@ -114,6 +116,11 @@ public:
 	/// <param name="ind"></param>
 	/// <returns></returns>
 	size_t getDurationFromMeetingInd(size_t ind) const;
+
+private:
+	int getNextPresentDb(size_t ind) const;
+	int getNextPresentPostponed(size_t ind) const;
+	void updateChangesAndReload();
 };
 
 #endif
